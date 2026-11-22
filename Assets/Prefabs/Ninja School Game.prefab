@@ -1,0 +1,582 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &47788671947336610
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2783154766958323116}
+  - component: {fileID: 695655883498845626}
+  m_Layer: 0
+  m_Name: Ninja School Server Control
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2783154766958323116
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 47788671947336610}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3062592833865499721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &695655883498845626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 47788671947336610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a78ba0cc319e7248adbd5080fe560da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NsoServerControl
+  _saveSubfolder: NsoData
+  _useSqlite: 1
+  _staticSubfolder: NsoStatic
+  _wikiEnabled: 1
+  _wikiPort: 8787
+  _wikiOpenBrowser: 0
+  _playerLogEnabled: 1
+  _playerLogToDatabase: 1
+  _playerLogToFile: 0
+  _playerLogOutgoing: 1
+  _playerLogSnapshotSeconds: 5
+  _playerLogPayloadBytes: 48
+  _playerLogKeepFiles: 20
+  _groundLootOwnerSeconds: 30
+  _groundLootLifetimeSeconds: 60
+  _aiMoveStepPx: 60
+  _agentsEnabled: 1
+  _aiPlayerCount: 13
+  _aiLootScanRadius: 600
+  _aiLootVerticalRange: 144
+  _aiLootStallSeconds: 4
+  _aiLootRetrySeconds: 8
+  _aiSpreadHuntingZones: 1
+  _aiZoneCheckSeconds: 10
+  _aiZoneChangeCooldownSeconds: 45
+  _aiZoneApproachTimeoutSeconds: 30
+  _aiZoneCrowdingThreshold: 3
+  _aiZonePopulationImprovement: 2
+  _botLogKeepDays: 20
+  _botLogEnabled: 1
+  _agentMinDecisionSeconds: 15
+  _agentReviewSeconds: 300
+  _llmEnabled: 1
+  _llmLeads: 1
+  _llmReviewSeconds: 120
+  _aiMoveSendMilliseconds: 250
+  _aiMinPotionsToFight: 3
+  _aiNoPotionFleeHpPercent: 55
+  _ragEnabled: 1
+  _aiFoodStock: 2
+  _aiFoodMoneyReserve: 300
+  _aiBagReserveSlots: 3
+  _aiFastTravelMinSavedHops: 2
+  _aiFastTravelScrollCostHops: 2
+  _ragGameKnowledge: 1
+  _ragKnowledgeTopK: 4
+  _ragMemoryChars: 600
+  _llmPriorityMinutes: 15
+  _qdrantUrl: http://127.0.0.1:6333
+  _embedModel: bge-m3
+  _llmContextTokens: 4096
+  _llmEndpoint: http://127.0.0.1:11434/v1/chat/completions
+  _llmModel: qwen3.5:4b
+  _llmReasoningEffort: none
+  _llmLocalOnly: 1
+  _llmJsonMode: 1
+  _llmStructuredOutputs: 1
+  _llmFormatBackoffSeconds: 5
+  _llmTimeoutSeconds: 40
+  _llmBackoffSeconds: 60
+  _llmTemperature: 0.7
+  _llmGuide: "BEGINNER'S GUIDE:\n- You start in L\xE0ng Tone. Follow the main quests of the village chief Tajima in order: they teach the basics, give rewards and unlock new maps. When unsure, choose the quest.\n- Without a weapon you cannot fight: Tajima gives a wooden sword.\n- Shops open after quest 3 (NV di\u1EC7t s\xEAn tr\u1EEB c\xF3c). Kiriko sells HP/MP potions, Tabemono food. Carry potions before long hunts.\n- Monsters drop yen (about one kill in ten) and sometimes items; drops are owner-only for 30 seconds, then public until they expire.\n- Train on monsters from your level to about 3 levels above. Far stronger ones kill you; ones 10 levels below give no experience.\n- At level 10, after quest 8 (visit the 3 schools), join your school: Hirosaki (ki\u1EBFm, phi ti\xEAu), Ookaza (kunai, cung) or Haruna (\u0111ao, qu\u1EA1t). Then read the school's book and use its weapon.\n- Potential and skill points are spent for you. When a quest step needs a level, hunt until you reach it.\n- If you die you return to the village with full HP; learn from it and avoid that monster for a while."
+  status: Not running
+  address: 
+  dataFolder: 
+  wikiUrl: 
+  playerLogFile: 
+--- !u!1 &702956166129786051
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3523982932339076631}
+  - component: {fileID: 6802956937206352448}
+  - component: {fileID: 9007901034148989794}
+  - component: {fileID: 6451534589904716092}
+  - component: {fileID: 8211211059506448819}
+  - component: {fileID: 3680122923353012339}
+  - component: {fileID: 6316611812177682250}
+  m_Layer: 0
+  m_Name: Main Camera
+  m_TagString: MainCamera
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3523982932339076631
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702956166129786051}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3062592833865499721}
+  m_LocalEulerAnglesHint: {x: 0, y: -0, z: -0}
+--- !u!20 &6802956937206352448
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702956166129786051}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 1
+  orthographic size: 5
+  m_Depth: -1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 0
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!124 &9007901034148989794
+Behaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702956166129786051}
+  m_Enabled: 1
+--- !u!81 &6451534589904716092
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702956166129786051}
+  m_Enabled: 0
+--- !u!114 &8211211059506448819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702956166129786051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a30592b743353454b9e00c50043c6faf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isWorldver: 0
+  isLocal: 0
+  tickRate: 24
+--- !u!114 &3680122923353012339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702956166129786051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
+--- !u!114 &6316611812177682250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702956166129786051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4192dafec0186054593ccdbbed9fd04d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NsoInputSystemBridge
+  _actions: {fileID: -944628639613478452, guid: ead6aaaed0b8f1d4695e64276b524872, type: 3}
+  _repeatDelay: 0.5
+  _repeatInterval: 0.05
+--- !u!1 &829203800524714655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5056913871340746172}
+  - component: {fileID: 1541385245745096847}
+  m_Layer: 0
+  m_Name: Ninja School UI Layout
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5056913871340746172
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829203800524714655}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3062592833865499721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1541385245745096847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829203800524714655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0a226df8b165c24da78ae7e1e174bce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NsoUiLayout
+  bottomButtons:
+    bottomGap: 8
+    sidePadding: 8
+    popupSideInset: -2
+  potionButtons:
+    bottomGap: 6
+  npcMenu:
+    bottomGap: 8
+  developerWindow:
+    valueRow: 28
+    buttonH: 24
+    boxW: 38
+    boxH: 20
+    boxGap: 5
+    boxRightMargin: 8
+    windowW: 240
+    windowMaxH: 300
+    frameMargin: 7
+    titleH: 32
+    bottomH: 70
+    buttonFromBottom: 28
+    labelX: 10
+    listTop: 8
+    boxOffsetY: 3
+    boxTextOffsetY: 2
+    limit: 100
+    step: 0.1
+    shiftStep: 1
+  settingsWindow:
+    windowW: 300
+    windowMaxH: 300
+    tabH: 18
+    rowH: 20
+    labelX: 8
+    controlW: 104
+    sliderW: 70
+    controlRightMargin: 8
+    rowTextY: 5
+    hintH: 24
+    hintGap: 4
+    switchW: 26
+--- !u!1 &2044498155355507690
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2785238044373079697}
+  - component: {fileID: 8781130837046207602}
+  m_Layer: 0
+  m_Name: Ninja School Game Layer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2785238044373079697
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2044498155355507690}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3062592833865499721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8781130837046207602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2044498155355507690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e04bb829ae0e724aaaba5633aa66717, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NsoGameLayer
+  _drawIntoLayer: 1
+  _sortingOrder: 0
+  _sortingLayerName: Default
+  _opaque: 1
+  _targetCamera: {fileID: 0}
+  _shader: {fileID: 4800000, guid: 7d0b2d54ebb568242a0734a24260346e, type: 3}
+  _distance: 10
+  _antiAliasing: 1
+  _fxaaShader: {fileID: 4800000, guid: 4ce5aa66d2bdaa64eac8130e3f594962, type: 3}
+  _contrastThreshold: 0.0312
+  _relativeThreshold: 0.063
+  _subpixelBlending: 0.75
+--- !u!1 &3006293712639163681
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2398490862460152}
+  - component: {fileID: 5084001678455757970}
+  m_Layer: 0
+  m_Name: Ninja School Game Control
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2398490862460152
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3006293712639163681}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3062592833865499721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5084001678455757970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3006293712639163681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7f81fca7efa3114b91ef3ac816ed721, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NsoGameControl
+  _uiZoom: 3
+  _fullscreenOnStart: 1
+  _logicTicksPerSecond: 24
+  _targetFrameRate: 60
+  _runInBackground: 1
+  _smoothWorldMotion: 1
+  _smoothRemoteCharacters: 1
+  _remoteInitialMoveSeconds: 0.5
+  _remoteMaximumMoveSeconds: 0.75
+  _remoteTeleportDistance: 180
+  _smoothEffects: 1
+  _mobHealthSeconds: 0.12
+  _menuOpenSeconds: 0.14
+  _instantMovementStop: 1
+  _doubleClickMs: 400
+--- !u!1 &5088726031137583908
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6883482399683135869}
+  - component: {fileID: 189338487317077306}
+  m_Layer: 0
+  m_Name: Ninja School Map Overlay
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6883482399683135869
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5088726031137583908}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3062592833865499721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &189338487317077306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5088726031137583908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc48285c8f99e06429cb5322faa066b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NsoBridge.NsoMapOverlayBridge
+  _targetCamera: {fileID: 0}
+  _gameLayer: {fileID: 0}
+  _editPixelsPerUnit: 24
+  _previewMapSize: {x: 960, y: 288}
+  _drawGrid: 1
+  ready: 0
+  currentMapId: -1
+  currentZone: -1
+  cameraScroll: {x: 0, y: 0}
+  zoom: 0
+--- !u!1 &8040215484687170536
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3062592833865499721}
+  m_Layer: 0
+  m_Name: Ninja School Game
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3062592833865499721
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8040215484687170536}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3523982932339076631}
+  - {fileID: 2398490862460152}
+  - {fileID: 2783154766958323116}
+  - {fileID: 2785238044373079697}
+  - {fileID: 6883482399683135869}
+  - {fileID: 5056913871340746172}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

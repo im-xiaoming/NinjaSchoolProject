@@ -1,0 +1,769 @@
+using System;
+using NsoServer.Store;
+using System.IO;
+
+namespace NsoServer.Net
+{
+    // Static payloads the client downloads after login (images, parts, skills, items, maps...).
+    // Phase 3 fills these from the original Data/ files and the SQL dump; until then they are empty.
+    public interface IStaticData
+    {
+        byte[] Version { get; }
+
+        byte[] Data { get; }
+
+        byte[] Map { get; }
+
+        byte[] Skill { get; }
+
+        byte[] Item { get; }
+    }
+
+    public sealed class EmptyStaticData : IStaticData
+    {
+        private static readonly byte[] None = new byte[0];
+        public byte[] Version
+        {
+            get
+            {
+                return None;
+            }
+        }
+
+        public byte[] Data
+        {
+            get
+            {
+                return None;
+            }
+        }
+
+        public byte[] Map
+        {
+            get
+            {
+                return None;
+            }
+        }
+
+        public byte[] Skill
+        {
+            get
+            {
+                return None;
+            }
+        }
+
+        public byte[] Item
+        {
+            get
+            {
+                return None;
+            }
+        }
+    }
+
+    // Port of com.nsoz.network.Controller for the pre-game flow.
+    // Offline deviation: there is no login, title or character screen. Client info signs the one local account in,
+    // client ok makes sure it has a character (EnsureCharacter) and the client then selects the first one on its own:
+    // client info -> data download -> client ok -> character list -> select character.
+    public sealed class Controller
+    {
+        private readonly Session session;
+        private const string LocalAccount = "player";
+        private const string LocalPassword = "local";
+        /// <summary>Name, gender (0 female, 1 male) and head part id of the character made on the first start.
+        /// The name follows the AddCharacter rules (5..15 characters a-z / 0-9).</summary>
+        public static string DefaultCharacterName = "ninja";
+        public static sbyte DefaultCharacterGender = 1;
+        public static sbyte DefaultCharacterHead = 2;
+        private int zoomLevel = 1;
+        private bool clientOk;
+        private UserRecord user;
+        /// <summary>Initialize controller state and its supplied dependencies.</summary>
+        /// <param name="session">Game protocol connection.</param>
+        public Controller(Session session)
+        {
+            this.session = session;
+        }
+
+        // One lock for all game state: player messages and the monster tick never run at the same time.
+        private object Gate
+        {
+            get
+            {
+                return session.Server.World != null ? session.Server.World.SyncRoot : this;
+            }
+        }
+
+        /// <summary>Dispatch an incoming protocol message using the existing command table.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        public void OnMessage(Message m)
+        {
+            lock (Gate)
+            {
+                PlayerLog.In(session, actions != null ? actions.State : null, m); // offline debug log of every player action
+                Handle(m);
+            }
+        }
+
+        /// <summary>Handle the incoming request using this module&#x27;s existing routing/validation.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        private void Handle(Message m)
+        {
+            try
+            {
+                switch (m.Command)
+                {
+                    case Cmd.NOT_LOGIN:
+                        OnNotLogin(m);
+                        break;
+                    case Cmd.NOT_MAP:
+                        OnNotMap(m);
+                        break;
+                    case Cmd.ME_BACK:
+                        if (actions != null)
+                            actions.ReturnTownFromDead();
+                        break;
+                    case Cmd.ME_LIVE:
+                        if (actions != null)
+                            actions.ReviveInPlace();
+                        break;
+                    case Cmd.PLAYER_MOVE:
+                        if (actions != null)
+                            actions.Move(m);
+                        break;
+                    case Cmd.MAP_CHANGE:
+                        if (actions != null)
+                            actions.RequestChangeMap();
+                        break;
+                    case Cmd.OPEN_UI_ZONE:
+                        if (actions != null)
+                            actions.OpenUiZone();
+                        break;
+                    case Cmd.ZONE_CHANGE:
+                        if (actions != null)
+                            actions.ChangeZone(m);
+                        break;
+                    case 41:
+                        if (actions != null)
+                            PlayerCombat.SelectSkill(m, actions.State, session.Server.World);
+                        break; // SKILL_SELECT
+                    case 60:
+                        if (actions != null)
+                            PlayerCombat.AttackMonster(m, actions.State, session.Server.World);
+                        break; // PLAYER_ATTACK_NPC
+                    case PlayerItemUse.CmdAutoAttackMove:
+                        if (actions != null)
+                            PlayerItemUse.MoveForAuto(m, actions.State, session.Server.World);
+                        break;
+                    case 61:
+                        if (actions != null)
+                            Gymnasium.AttackPlayer(m, actions.State, session.Server.World);
+                        break; // PLAYER_ATTACK_PLAYER (NV Thách đấu only)
+                    // NPC menus and quests (PlayerTasks)
+                    case 40:
+                        if (actions != null)
+                            PlayerTasks.OpenMenu(m, actions.State, session.Server.World);
+                        break; // OPEN_UI_MENU
+                    case 29:
+                        if (actions != null)
+                            PlayerTasks.Menu(m, actions.State, session.Server.World);
+                        break; // MENU
+                    case 47:
+                        if (actions != null)
+                            PlayerTasks.GetTask(m, actions.State, session.Server.World);
+                        break; // TASK_GET
+                    // items and shops (PlayerItems)
+                    case 11:
+                        if (actions != null)
+                            PlayerItems.UseItem(m, actions.State, session.Server.World);
+                        break;
+                    case 12:
+                        if (actions != null)
+                            PlayerItemUse.ChangeMap(m, actions.State, session.Server.World);
+                        break; // ITEM_USE_CHANGE_MAP
+                    case 92:
+                        if (actions != null)
+                            PlayerLuong.Input(m, actions.State);
+                        break; // OPEN_TEXT_BOX_ID: text box answer        // ITEM_USE
+                    case 13:
+                        if (actions != null)
+                            PlayerItems.BuyItem(m, actions.State, session.Server.World);
+                        break; // ITEM_BUY
+                    case 15:
+                        if (actions != null)
+                            PlayerItems.ItemBodyToBag(m, actions.State, session.Server.World);
+                        break; // ITEM_BODY_TO_BAG
+                    case 42:
+                        if (actions != null)
+                            PlayerItems.RequestItemInfo(m, actions.State, session.Server.World);
+                        break; // REQUEST_ITEM_INFO
+                    // storage box, selling, throwing (PlayerStorage)
+                    case 14:
+                        if (actions != null)
+                            PlayerStorage.Sale(m, actions.State, session.Server.World);
+                        break; // ITEM_SALE
+                    case 16:
+                        if (actions != null)
+                            PlayerStorage.BoxToBag(m, actions.State, session.Server.World);
+                        break; // ITEM_BOX_TO_BAG
+                    case 17:
+                        if (actions != null)
+                            PlayerStorage.BagToBox(m, actions.State, session.Server.World);
+                        break; // ITEM_BAG_TO_BOX
+                    case -12:
+                        if (actions != null)
+                            PlayerStorage.Throw(m, actions.State, session.Server.World);
+                        break; // ME_THROW
+                    case 74:
+                        if (actions != null)
+                            PlayerBuff.Use(m, actions.State, session.Server.World);
+                        break; // USE_SKILL_MY_BUFF
+                    // Kenshinto's forge (PlayerUpgrade)
+                    case 19:
+                        if (actions != null)
+                            PlayerUpgrade.UpPearl(m, actions.State, session.Server.World, true);
+                        break; // UPPEARL (xu)
+                    case 20:
+                        if (actions != null)
+                            PlayerUpgrade.UpPearl(m, actions.State, session.Server.World, false);
+                        break; // UPPEARL_LOCK (yen, then xu)
+                    case 21:
+                        if (actions != null)
+                            PlayerUpgrade.Upgrade(m, actions.State, session.Server.World);
+                        break; // UPGRADE
+                    case 22:
+                        if (actions != null)
+                            PlayerUpgrade.Split(m, actions.State, session.Server.World);
+                        break; // SPLIT
+                    case -14:
+                        if (actions != null)
+                            PlayerItems.PickItem(m, actions.State, session.Server.World);
+                        break; // ITEMMAP_MYPICK
+                    case -23:
+                        if (actions != null)
+                            DevTerminal.Run(m, actions, session.Server.World);
+                        break; // CHAT_MAP: dev terminal (offline)
+                    case Cmd.SUB_COMMAND:
+                        if (actions != null)
+                            OnSubCommand(m);
+                        break;
+                    default:
+                        session.Server.Log("Client " + session.Id + ": cmd " + m.Command);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                session.Server.Log("Client " + session.Id + " message error (cmd " + m.Command + "): " + ex); // full stack trace for debugging
+            }
+        }
+
+        /// <summary>Handle disconnected.</summary>
+        public void OnDisconnected()
+        {
+            lock (Gate)
+            {
+                if (actions != null)
+                {
+                    actions.SaveAndLeave();
+                    actions = null;
+                }
+            }
+        }
+
+        /// <summary>Handle not login.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <remarks>Locals: z: Z.</remarks>
+        private void OnNotLogin(Message m)
+        {
+            if (user != null)
+                return;
+            sbyte sub = m.Reader.ReadSByte();
+            switch (sub)
+            {
+                case Cmd.CLIENT_INFO:
+                    try
+                    {
+                        m.Reader.ReadSByte();
+                        int z = m.Reader.ReadSByte();
+                        session.ZoomLevel = z < 1 || z > 4 ? 1 : z;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    // the other fields (screen size, platform...) are not needed offline
+                    SignInLocalPlayer();
+                    break;
+                default:
+                    session.Server.Log("Client " + session.Id + ": notLogin " + sub);
+                    break;
+            }
+        }
+
+        // Offline build: there is one local account, signed in as soon as the client sends its info (no login message).
+        /// <summary>Perform sign in local player.</summary>
+        private void SignInLocalPlayer()
+        {
+            if (user != null)
+                return;
+            UserRecord found;
+            var result = session.Server.Accounts.Login(LocalAccount, LocalPassword, out found);
+            if (found == null)
+            {
+                session.Close();
+                return;
+            }
+
+            user = found;
+            if (result == AccountStore.LoginResult.Created)
+                session.Server.Log("Created account " + LocalAccount);
+            SendNotMap(Cmd.UPDATE_VERSION, session.Server.Static.Version);
+        }
+
+        /// <summary>Handle not map.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        private void OnNotMap(Message m)
+        {
+            if (user == null)
+                return;
+            sbyte sub = m.Reader.ReadSByte();
+            switch (sub)
+            {
+                case Cmd.UPDATE_DATA:
+                    SendNotMap(sub, session.Server.Static.Data);
+                    break;
+                case Cmd.UPDATE_MAP:
+                    SendNotMap(sub, session.Server.Static.Map);
+                    break;
+                case Cmd.UPDATE_SKILL:
+                    SendNotMap(sub, session.Server.Static.Skill);
+                    break;
+                case Cmd.UPDATE_ITEM:
+                    SendNotMap(sub, session.Server.Static.Item);
+                    break;
+                case -115:
+                    SendIcon(m);
+                    break; // REQUEST_ICON
+                case -108:
+                    SendMobTemplate(m);
+                    break; // REQUEST_NPCTEMPLATE
+                case -109:
+                    SendMapTemplate(m);
+                    break; // REQUEST_MAPTEMPLATE
+                case PlayerUpgrade.CmdConvertUpgrade:
+                    if (actions != null)
+                        PlayerUpgrade.ConvertUpgrade(m, actions.State, session.Server.World);
+                    break; // CONVERT_UPGRADE
+                case PlayerStorage.StackSplitSub:
+                    if (actions != null)
+                        PlayerStorage.SplitStack(m, actions.State, session.Server.World);
+                    break;
+                case Cmd.CLIENT_OK:
+                    if (!clientOk)
+                    {
+                        clientOk = true;
+                        EnsureCharacter();
+                        SendCharList();
+                    }
+
+                    break;
+                case Cmd.CREATE_PLAYER:
+                    CreateCharacter(m);
+                    break;
+                case Cmd.SELECT_PLAYER:
+                    SelectCharacter(m);
+                    break;
+                default:
+                    session.Server.Log("Client " + session.Id + ": notMap " + sub);
+                    break;
+            }
+        }
+
+        private PlayerRecord current;
+        private PlayerActions actions;
+        /// <summary>Select character.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        private void SelectCharacter(Message m)
+        {
+            if (current != null)
+                return;
+            string name = m.Reader.ReadUTF();
+            var chosen = session.Server.Accounts.GetPlayers(user.Id).Find(p => p.Name == name);
+            if (chosen == null)
+            {
+                session.Close();
+                return;
+            }
+
+            if (session.Server.World == null)
+            {
+                Dialog("Dữ liệu thế giới chưa được nạp.");
+                return;
+            }
+
+            current = chosen;
+            var state = EnterWorld.Send(session, user, chosen, session.Server.World);
+            actions = new PlayerActions(session, session.Server.World, state);
+            Presence.Joined(state); // Zone.join: the other characters of the zone (players and AI players) see each other
+            PlayerTasks.OnEnterWorld(state, session.Server.World); // quest in progress (User.selectChar)
+        }
+
+        /// <summary>Create character.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <remarks>Locals: c: Client character being inspected or controlled; h: Height or vertical span.</remarks>
+        private void CreateCharacter(Message m)
+        {
+            var store = session.Server.Accounts;
+            if (store.GetPlayers(user.Id).Count >= 3)
+            {
+                Dialog("Bạn chỉ được tạo tối đa 3 nhân vật.");
+                return;
+            }
+
+            string name = m.Reader.ReadUTF();
+            sbyte gender = m.Reader.ReadSByte();
+            sbyte head = m.Reader.ReadSByte();
+            string error = AddCharacter(name, gender, head);
+            if (error != null)
+            {
+                Dialog(error);
+                return;
+            }
+
+            SendCharList();
+        }
+
+        /// <summary>Offline deviation: no character screen, so the first start makes one character on its own
+        /// (DefaultCharacterName, with a number added if the name is taken).</summary>
+        /// <remarks>Locals: i: Number suffix tried for a taken name.</remarks>
+        private void EnsureCharacter()
+        {
+            if (session.Server.Accounts.GetPlayers(user.Id).Count > 0)
+                return;
+            string name = DefaultCharacterName;
+            for (int i = 1; i < 1000 && session.Server.Accounts.NameTaken(name); i++)
+                name = DefaultCharacterName + i;
+            string error = AddCharacter(name, DefaultCharacterGender, DefaultCharacterHead);
+            if (error != null)
+                session.Server.Log("Default character not created: " + error);
+        }
+
+        /// <summary>Validates and saves a new character of the local account (Java User.createCharacter rules).</summary>
+        /// <param name="name">Character name.</param>
+        /// <param name="gender">0 female, 1 male.</param>
+        /// <param name="head">Requested head part id; an id outside the gender's list becomes its first head.</param>
+        /// <returns>Null when the character was saved, otherwise the message for the player.</returns>
+        /// <remarks>Locals: c: Current name character; h: Head part id.</remarks>
+        private string AddCharacter(string name, sbyte gender, sbyte head)
+        {
+            var store = session.Server.Accounts;
+            foreach (char c in name)
+                if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')))
+                    return "Tên nhân vật không được chứa ký tự đặc biệt!";
+
+            sbyte[] heads = gender == 0 ? new sbyte[]
+            {
+                11,
+                26,
+                27,
+                28
+            }
+
+            : new sbyte[]
+            {
+                2,
+                23,
+                24,
+                25
+            };
+            gender = (sbyte)(gender == 0 ? 0 : 1);
+            sbyte chosen = heads[0];
+            foreach (sbyte h in heads)
+                if (h == head)
+                {
+                    chosen = h;
+                    break;
+                }
+
+            if (name.Length < 5 || name.Length > 15)
+                return "Tên tài khoản chỉ cho phép từ 5 đến 15 ký tự!";
+            if (store.NameTaken(name))
+                return "Tên nhân vật đã tồn tại!";
+            store.AddPlayer(user.Id, name, gender, chosen);
+            return null;
+        }
+
+        /// <summary>Send character list.</summary>
+        /// <remarks>Locals: ms: Duration/timestamp in milliseconds; w: Width or horizontal span; p: Current player/point or request payload.</remarks>
+        private void SendCharList()
+        {
+            var list = session.Server.Accounts.GetPlayers(user.Id);
+            var ms = NotMap(Cmd.SELECT_PLAYER);
+            var w = ms.Writer;
+            w.WriteByte(list.Count);
+            foreach (var p in list)
+            {
+                w.WriteByte(p.Gender);
+                w.WriteUTF(p.Name);
+                w.WriteUTF(ClassName(p.ClassId));
+                // Same experience table as PlayerCombat.Init; never show the old phase-1 stub.
+                w.WriteByte(session.Server.World != null ? session.Server.World.GetLevel(p.Exp) : 1);
+                w.WriteShort(p.Head);
+                w.WriteShort(p.Weapon);
+                w.WriteShort(p.Body);
+                w.WriteShort(p.Leg);
+            }
+
+            session.Send(ms);
+        }
+
+        private static readonly string[] ClassNames =
+        {
+            "Chưa vào trường",
+            "Ninja kiếm",
+            "Ninja phi tiêu",
+            "Ninja kunai",
+            "Ninja cung",
+            "Ninja đao",
+            "Ninja quạt"
+        };
+        /// <summary>Compute class name.</summary>
+        /// <param name="id">Identifier.</param>
+        private static string ClassName(int id)
+        {
+            return id >= 0 && id < ClassNames.Length ? ClassNames[id] : ClassNames[0];
+        }
+
+        /// <summary>Compute not map.</summary>
+        /// <param name="sub">Sub.</param>
+        /// <remarks>Locals: ms: Outgoing protocol message.</remarks>
+        private Message NotMap(sbyte sub)
+        {
+            var ms = new Message(Cmd.NOT_MAP);
+            ms.Writer.WriteSByte(sub);
+            return ms;
+        }
+
+        // Service.requestMapTemplate: the client has no res/map file for this map (e.g. the gyms 0/56/73, the tunnel 78)
+        // and waits for the tiles of the player's current map. Without the reply the screen stays black.
+        /// <summary>Send map template.</summary>
+        /// <param name="m">Retained for call compatibility; not read by this implementation.</param>
+        /// <remarks>Locals: ms: Duration/timestamp in milliseconds; i: Loop/collection index.</remarks>
+        private void SendMapTemplate(Message m)
+        {
+            if (actions == null || actions.State.Zone == null)
+                return;
+            var grid = session.Server.World.GetGrid(actions.State.Zone.Tile);
+            if (grid == null)
+                return;
+            var ms = NotMap(-109);
+            ms.Writer.WriteByte(grid.Tmw);
+            ms.Writer.WriteByte(grid.Tmh);
+            for (int i = 0; i < grid.Tmw * grid.Tmh; i++)
+                ms.Writer.WriteByte(grid.Maps[i]);
+            session.Send(ms);
+        }
+
+        /// <summary>Send not map.</summary>
+        /// <param name="sub">Sub.</param>
+        /// <param name="payload">Payload.</param>
+        /// <remarks>Locals: ms: Duration/timestamp in milliseconds.</remarks>
+        private void SendNotMap(sbyte sub, byte[] payload)
+        {
+            var ms = NotMap(sub);
+            ms.Writer.Write(payload);
+            session.Send(ms);
+        }
+
+        /// <summary>Send icon.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <remarks>Locals: ms: Duration/timestamp in milliseconds.</remarks>
+        private void SendIcon(Message m)
+        {
+            int icon = m.Reader.ReadInt();
+            byte[] png;
+            try
+            {
+                png = session.Server.World.LoadFile("Img/Small/" + session.ZoomLevel + "/Small" + icon + ".png");
+            }
+            catch (System.IO.IOException)
+            {
+                return;
+            }
+
+            var ms = NotMap(-115);
+            ms.Writer.WriteInt(icon);
+            ms.Writer.WriteInt(png.Length);
+            ms.Writer.Write(png);
+            session.Send(ms);
+        }
+
+        /// <summary>Send monster template.</summary>
+        /// <param name="request">Framed protocol message.</param>
+        /// <remarks>Locals: id: Identifier; mob: Monster; ms: Duration/timestamp in milliseconds; w: Width or horizontal span; i: Loop/collection index.</remarks>
+        private void SendMobTemplate(Message request)
+        {
+            var world = session.Server.World;
+            if (world == null)
+                return;
+            int id = request.Reader.ReadShort();
+            var mob = world.FindMob(id);
+            if (mob == null)
+                return;
+            var ms = NotMap(-108);
+            var w = ms.Writer;
+            w.WriteShort(id);
+            w.WriteSByte(mob.TypeFly);
+            w.WriteSByte(mob.NumberImage);
+            try
+            {
+                bool singleImage = id == 98 || id == 99;
+                int count = singleImage ? 1 : mob.NumberImage;
+                for (int i = 0; i < count; i++)
+                {
+                    string file = "Img/Mob/" + session.ZoomLevel + "/" + id + (singleImage ? "" : "_" + i) + ".png";
+                    byte[] png = world.LoadFile(file);
+                    w.WriteInt(png.Length);
+                    w.Write(png);
+                }
+            }
+            catch (IOException ex)
+            {
+                session.Server.Log("Missing mob image " + id + " (zoom " + session.ZoomLevel + "): " + ex.Message);
+                return;
+            }
+
+            w.WriteBoolean(mob.IsBoss);
+            if (mob.IsBoss)
+            {
+                w.WriteByte(mob.FrameBossMove.Length);
+                foreach (var value in mob.FrameBossMove)
+                    w.WriteSByte(value);
+                w.WriteByte(mob.FrameBossAttack.Length);
+                foreach (var attack in mob.FrameBossAttack)
+                {
+                    w.WriteByte(attack.Length);
+                    foreach (var value in attack)
+                        w.WriteSByte(value);
+                }
+
+                w.WriteInt(1);
+                WriteMobFrames(w, mob, id >= 236 && id != 259);
+            }
+            else
+                w.WriteInt(0);
+            session.Send(ms);
+        }
+
+        /// <summary>Write monster frames.</summary>
+        /// <param name="w">Width or horizontal span.</param>
+        /// <param name="mob">Monster.</param>
+        /// <param name="modern">Modern.</param>
+        /// <remarks>Locals: i: Loop/collection index.</remarks>
+        private static void WriteMobFrames(JavaWriter w, NsoServer.World.MobTemplate mob, bool modern)
+        {
+            w.WriteByte(mob.ImageInfo.Length);
+            foreach (var image in mob.ImageInfo)
+            {
+                w.WriteByte(image.Id);
+                w.WriteByte(image.X);
+                w.WriteByte(image.Y);
+                w.WriteByte(image.W);
+                w.WriteByte(image.H);
+            }
+
+            w.WriteShort(mob.Frames.Length);
+            foreach (var frame in mob.Frames)
+            {
+                w.WriteByte(frame.IdImg.Length);
+                for (int i = 0; i < frame.IdImg.Length; i++)
+                {
+                    w.WriteShort(frame.Dx[i]);
+                    w.WriteShort(frame.Dy[i]);
+                    w.WriteByte(frame.IdImg[i]);
+                    if (modern)
+                    {
+                        w.WriteByte(frame.Flip[i]);
+                        w.WriteByte(frame.OnTop[i]);
+                    }
+                }
+            }
+
+            if (!modern)
+            {
+                w.WriteShort(0);
+                return;
+            }
+
+            w.WriteByte(mob.Sequence.Length);
+            foreach (short value in mob.Sequence)
+                w.WriteShort(value);
+            w.WriteByte(mob.FrameChar.Length);
+            foreach (var frames in mob.FrameChar)
+            {
+                w.WriteByte(frames.Length);
+                foreach (var value in frames)
+                    w.WriteSByte(value);
+            }
+
+            foreach (var value in mob.IndexSplash)
+                w.WriteSByte(value);
+        }
+
+        // Controller.messageSubCommand: shop list, potential and skill points
+        /// <summary>Handle sub command.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        private void OnSubCommand(Message m)
+        {
+            sbyte sub = m.Reader.ReadSByte();
+            var world = session.Server.World;
+            switch (sub)
+            {
+                case -103:
+                    PlayerItems.RequestShop(m, actions.State, world);
+                    break; // REQUEST_ITEM
+                case -109:
+                    PlayerSkills.UpPotential(m, actions.State, world);
+                    break; // POTENTIAL_UP
+                case -108:
+                    PlayerSkills.UpSkill(m, actions.State, world);
+                    break; // SKILL_UP
+                case -107:
+                    PlayerItems.BagSort(actions.State, world);
+                    break; // BAG_SORT
+                case -106:
+                    PlayerItems.BoxSort(actions.State, world);
+                    break; // BOX_SORT
+                case -67:
+                    PlayerSkills.SaveRms(m, actions.State);
+                    break; // SAVE_RMS
+                default:
+                    session.Server.Log("Client " + session.Id + ": sub " + sub);
+                    break;
+            }
+        }
+
+        /// <summary>Perform non-player character not available.</summary>
+        /// <remarks>Locals: ms: Outgoing protocol message.</remarks>
+        private void NpcNotAvailable()
+        {
+            var ms = new Message(Cmd.ALERT_MESSAGE);
+            ms.Writer.WriteUTF("Th\u00f4ng b\u00e1o");
+            ms.Writer.WriteUTF("Ch\u1ee9c n\u0103ng n\u00e0y ch\u01b0a c\u00f3 trong b\u1ea3n offline.");
+            session.Send(ms);
+        }
+
+        /// <summary>Perform dialog.</summary>
+        /// <param name="text">Text fragment assembled or read by this operation.</param>
+        /// <remarks>Locals: ms: Outgoing protocol message.</remarks>
+        private void Dialog(string text)
+        {
+            var ms = new Message(Cmd.SERVER_DIALOG);
+            ms.Writer.WriteUTF(text);
+            session.Send(ms);
+        }
+    }
+}

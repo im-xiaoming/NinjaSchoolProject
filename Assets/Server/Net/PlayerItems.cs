@@ -1,0 +1,1048 @@
+using System;
+using System.Collections.Generic;
+using NsoServer.Store;
+using NsoServer.World;
+
+namespace NsoServer.Net
+{
+    using Zone = NsoServer.World.Zone;
+    using Mob = NsoServer.World.Mob;
+    using Math = System.Math; // the client has its own global Math class
+
+    // Port of the item side of com.nsoz.model.Char for ordinary maps:
+    //   addItemToBag, removeItem, useItem (equipment, HP/MP potions, food, skill books), itemBodyToBag, buyItem + Store.buy,
+    //   requestItem (shop list), requestItemInfo, pickItem, Mob.dropItem (task items, yen, random items, equipment),
+    //   Zone.updateItemMap (shared GroundLootPolicy controls ownership and ground lifetime).
+    public static class PlayerItems
+    {
+        // ItemTemplate types
+        /// <summary>HP each half second for 3 s of an HP potion (effect 21) - Char.useItem values; 0 = not an HP potion.</summary>
+        /// <param name="id">Identifier.</param>
+        public static int HpPotionParam(int id)
+        {
+            return id == 13 ? 25 : id == 14 ? 90 : id == 15 ? 230 : id == 16 ? 400 : id == 17 ? 650 : id == 565 ? 1500 : 0;
+        }
+
+        /// <summary>MP restored at once by an MP potion - Char.useItem values; 0 = not an MP potion.</summary>
+        /// <param name="id">Identifier.</param>
+        public static int MpPotionAmount(int id)
+        {
+            return id == 18 ? 150 : id == 19 ? 500 : id == 20 ? 1000 : id == 21 ? 2000 : id == 22 ? 3500 : id == 566 ? 5000 : 0;
+        }
+
+        public const int TypeWeapon = 1, TypeHp = 16, TypeMp = 17, TypeEat = 18, TypeMoney = 19, TypeTaskSave = 23, TypeTaskWait = 24, TypeTask = 25;
+        private const int ItemYen = 12, ItemComNam = 23, ItemWoodenSword = 194, ItemSushi = 218;
+        private const int MaxYen = 2000000000;
+        private const int MobTrainingDummy = 0;
+        // Legacy fallback for detached test states. Running worlds use their immutable LootRules snapshot,
+        // editable through the dev workbench; probabilities remain the Java defaults.
+        public static int DropLevelGapLimit = 10;
+        private static readonly Random Rng = new Random();
+        /// <summary>Return the current timestamp used by this module&#x27;s timers.</summary>
+        private static long Now()
+        {
+            return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+
+        /// <summary>Compute next int through the authoritative player rules.</summary>
+        /// <param name="min">Min.</param>
+        /// <param name="max">Max.</param>
+        private static int NextInt(int min, int max)
+        {
+            return min >= max ? max : Rng.Next(max + 1 - min) + min;
+        }
+
+        // Pure predicates from Java Char.pickItem, shared by the actual handler and all AI feasibility checks.
+        /// <summary>Check whether within pickup range applies to the supplied state.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="item">Item.</param>
+        /// <remarks>Locals: dx: Horizontal position/difference used by this calculation; dy: Vertical position/difference used by this calculation.</remarks>
+        public static bool IsWithinPickupRange(PlayerState me, ItemMapEntry item)
+        {
+            long dx = item.X - me.X, dy = item.Y - me.Y;
+            return dx * dx + dy * dy < 150 * 150;
+        }
+
+        /// <summary>Check whether receive ground item applies to the supplied state.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="template">Template.</param>
+        /// <param name="item">Item.</param>
+        public static bool CanReceiveGroundItem(PlayerState me, ItemTemplateData template, PlayerItem item)
+        {
+            return template != null && item != null && (template.Type == TypeMoney || item.Id == ItemSushi || SlotNull(me) > 0 || (template.IsUpToUp && IndexInBag(me, item.Id, item.IsLock) >= 0));
+        }
+
+        // Char.receiveWoodenSword: shared quest reward/preview factory, not a new character class.
+        /// <summary>Create task wooden sword through the authoritative player rules.</summary>
+        public static PlayerItem CreateTaskWoodenSword()
+        {
+            var sword = NewItem(ItemWoodenSword);
+            sword.Options.Add(new PlayerItemOption { Id = 0, Param = 10 });
+            sword.Options.Add(new PlayerItemOption { Id = 8, Param = 1 });
+            return sword;
+        }
+
+        // ---------------------------------------------------------------- bag basics
+        // Char.getSlotNull
+        /// <summary>Compute slot null through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <remarks>Locals: n: Number of entries or iterations; it: Current item/iterator entry.</remarks>
+        public static int SlotNull(PlayerState me)
+        {
+            int n = 0;
+            foreach (var it in me.Inventory.Bag)
+                if (it == null)
+                    n++;
+            return n;
+        }
+
+        // Char.getIndexItemByIdInBag(id, isLock)
+        /// <summary>Compute index in bag through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="id">Identifier.</param>
+        /// <param name="isLock">Is lock.</param>
+        /// <remarks>Locals: i: Loop/collection index.</remarks>
+        public static int IndexInBag(PlayerState me, int id, bool isLock)
+        {
+            var bag = me.Inventory.Bag;
+            for (int i = 0; i < bag.Length; i++)
+                if (bag[i] != null && bag[i].Id == id && bag[i].IsLock == isLock)
+                    return i;
+            return -1;
+        }
+
+        /// <summary>Compute index in bag through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="id">Identifier.</param>
+        /// <remarks>Locals: i: Loop/collection index.</remarks>
+        public static int IndexInBag(PlayerState me, int id)
+        {
+            var bag = me.Inventory.Bag;
+            for (int i = 0; i < bag.Length; i++)
+                if (bag[i] != null && bag[i].Id == id)
+                    return i;
+            return -1;
+        }
+
+        // a new item instance (ItemFactory.newItem)
+        /// <summary>Compute new item through the authoritative player rules.</summary>
+        /// <param name="id">Identifier.</param>
+        /// <param name="quantity">Quantity.</param>
+        /// <param name="isLock">Is lock.</param>
+        public static PlayerItem NewItem(int id, int quantity = 1, bool isLock = true)
+        {
+            return new PlayerItem
+            {
+                Id = id,
+                Quantity = quantity,
+                IsLock = isLock,
+                Expire = -1
+            };
+        }
+
+        // Char.addItemToBag: stack on an existing slot or take the first free one
+        /// <summary>Add item to bag through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <param name="item">Item.</param>
+        /// <remarks>Locals: t: Identifier taken from the selected record; i: Loop/collection index.</remarks>
+        public static bool AddItemToBag(PlayerState me, GameWorld world, PlayerItem item)
+        {
+            if (item == null)
+                return false;
+            var t = world.FindItem(item.Id);
+            if (t == null)
+                return false;
+            var bag = me.Inventory.Bag;
+            int index = IndexInBag(me, item.Id, item.IsLock);
+            if (index == -1 || !t.IsUpToUp || bag[index].Expire > 0)
+            {
+                for (int i = 0; i < bag.Length; i++)
+                {
+                    if (bag[i] != null)
+                        continue;
+                    item.Index = i;
+                    bag[i] = item;
+                    PlayerService.AddItem(me, item, t);
+                    Save(me);
+                    return true;
+                }
+
+                return false;
+            }
+
+            bag[index].Quantity += item.Quantity;
+            PlayerService.AddItem(me, bag[index], t);
+            Save(me);
+            return true;
+        }
+
+        // Char.removeItem(index, quantity, isUpdate)
+        /// <summary>Remove item through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="index">Index.</param>
+        /// <param name="quantity">Quantity.</param>
+        /// <param name="update">Update.</param>
+        public static void RemoveItem(PlayerState me, int index, int quantity, bool update)
+        {
+            var bag = me.Inventory.Bag;
+            if (index < 0 || index >= bag.Length || bag[index] == null)
+                return;
+            bag[index].Quantity -= quantity;
+            if (bag[index].Quantity <= 0)
+                bag[index] = null;
+            if (update)
+                PlayerService.UseItemUpToUp(me, index, quantity);
+            Save(me);
+        }
+
+        // Char.addYen / addCoin
+        /// <summary>Add yen currency through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="add">Add.</param>
+        /// <param name="notify">Notify.</param>
+        public static void AddYen(PlayerState me, long add, bool notify = true)
+        {
+            me.Progress.Yen = Math.Max(0, Math.Min(MaxYen, me.Progress.Yen + add));
+            if (notify)
+                PlayerService.AddYen(me, (int)add);
+            Save(me);
+        }
+
+        /// <summary>Add xu currency through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="add">Add.</param>
+        public static void AddXu(PlayerState me, long add)
+        {
+            me.Progress.Xu = Math.Max(0, Math.Min(me.Progress.XuMax, me.Progress.Xu + add)); // Char.addCoin: up to coinMax
+            PlayerService.AddXu(me, (int)add);
+            Save(me);
+        }
+
+        // writes the inventory and progress back into PlayerRecord.Data (flushed to disk when the character leaves)
+        /// <summary>Save player items through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        public static void Save(PlayerState me)
+        {
+            if (me.Inventory == null || me.Progress == null)
+                return;
+            me.Progress.PotentialPoint = me.PotentialPoint;
+            me.Progress.SkillPoint = me.SkillPoint;
+            if (me.Record.ClassId > 0)
+                me.Progress.Potential = (int[])me.Potential.Clone();
+            me.Progress.FoodEffect = null;
+            long now = Now();
+            foreach (var effect in me.Effects)
+            {
+                if (effect.Type != 0 || effect.IsExpired(now))
+                    continue;
+                me.Progress.FoodEffect = new[]
+                {
+                    (long)effect.TemplateId,
+                    (long)effect.Param,
+                    effect.StartAt,
+                    effect.EndAt
+                };
+                break;
+            }
+
+            me.Record.Data = PlayerProgress.ToJson(me.Inventory, me.Progress);
+        }
+
+        // ---------------------------------------------------------------- use / equip (cmd 11, 15)
+        // Char.useItem
+        /// <summary>Use item through the authoritative player rules.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <remarks>Locals: t: Identifier taken from the selected record; param: Intermediate value retained under its original legacy name; mp: Identifier taken from the selected record.</remarks>
+        public static void UseItem(Message m, PlayerState me, GameWorld world)
+        {
+            if (me.IsDead)
+                return;
+            int indexUI = m.Reader.ReadSByte();
+            var bag = me.Inventory.Bag;
+            if (indexUI < 0 || indexUI >= bag.Length)
+                return;
+            var item = bag[indexUI];
+            if (item == null || item.Quantity <= 0)
+                return;
+            var t = world.FindItem(item.Id);
+            if (t == null || me.Level < t.Level)
+                return;
+            if (item.Expire > 0 && item.Expire < Now())
+            {
+                RemoveItem(me, indexUI, item.Quantity, true);
+                return;
+            }
+
+            if ((t.Gender == 0 || t.Gender == 1) && t.Gender != me.Record.Gender)
+                return;
+            if (PlayerService.IsWearable(t))
+            {
+                UseEquipment(me, world, item, t);
+                return;
+            }
+
+            if (IsMartialArtBook(item.Id))
+            {
+                PlayerSkills.LearnSkill(me, world, item);
+                return;
+            }
+
+            if (TaskMechanics.UseTaskItem(me, world, indexUI, item))
+                return;
+            if (TaskOrders.UseItem(me, indexUI, item))
+                return;
+            if (PlayerItemUse.Use(me, world, indexUI, item))
+                return;
+            if (PlayerLuong.UseItem(me, world, indexUI, item))
+                return;
+            if (t.Type == TypeHp)
+            {
+                if (me.Hp >= me.MaxHp)
+                {
+                    PlayerService.ServerMessage(me, "HP đã đầy.");
+                    return;
+                }
+
+                int param = HpPotionParam(item.Id);
+                PlayerEffects.SetEffect(me, world, 21, 3000, param); // "Hiệu ứng bom máu": HP every half second for 3 s
+                RemoveItem(me, indexUI, 1, true);
+                return;
+            }
+
+            if (t.Type == TypeMp)
+            {
+                if (me.Mp >= me.MaxMp)
+                    PlayerService.ServerMessage(me, "MP đã đầy.");
+                int mp = MpPotionAmount(item.Id);
+                me.Mp = Math.Min(me.MaxMp, me.Mp + mp);
+                PlayerService.UpdateMp(me);
+                RemoveItem(me, indexUI, 1, true);
+                return;
+            }
+
+            if (t.Type == TypeEat)
+            {
+                int time = 0, param = 0, template = 0;
+                switch (item.Id)
+                {
+                    case 23:
+                        time = 1800000;
+                        param = 3;
+                        template = 0;
+                        break;
+                    case 24:
+                        time = 1800000;
+                        param = 20;
+                        template = 1;
+                        break;
+                    case 25:
+                        time = 1800000;
+                        param = 30;
+                        template = 2;
+                        break;
+                    case 26:
+                        time = 1800000;
+                        param = 40;
+                        template = 3;
+                        break;
+                    case 27:
+                        time = 1800000;
+                        param = 50;
+                        template = 4;
+                        break;
+                    case 29:
+                        time = 1800000;
+                        param = 60;
+                        template = 28;
+                        break;
+                    case 30:
+                        time = 259200000;
+                        param = 60;
+                        template = 28;
+                        break;
+                    case 249:
+                        time = 259200000;
+                        param = 40;
+                        template = 3;
+                        break;
+                    case 250:
+                        time = 259200000;
+                        param = 50;
+                        template = 4;
+                        break;
+                    case 409:
+                        time = 86400000;
+                        param = 150;
+                        template = 30;
+                        break;
+                    case 410:
+                        time = 86400000;
+                        param = 200;
+                        template = 31;
+                        break;
+                    case 567:
+                        time = 86400000;
+                        param = 300;
+                        template = 35;
+                        break;
+                }
+
+                PlayerEffects.SetEffect(me, world, template, time, param); // food: HP and MP every half second
+                RemoveItem(me, indexUI, 1, true); // one serving, including manually grouped food
+                PlayerTasks.OnEat(me, world);
+            }
+        }
+
+        // ItemTemplate.isTypeMartialArtBook
+        /// <summary>Check whether martial art book applies to the supplied state.</summary>
+        /// <param name="id">Identifier.</param>
+        public static bool IsMartialArtBook(int id)
+        {
+            return (id >= 40 && id <= 93) || (id >= 311 && id <= 316) || (id >= 375 && id <= 380) || (id >= 547 && id <= 563) || (id >= 839 && id <= 844) || (id >= 1125 && id <= 1130);
+        }
+
+        // weapons each class may use (ItemTemplate.isKiem / isTieu / isKunai / isCung / isDao / isQuat)
+        private static readonly int[][] ClassWeapons =
+        {
+            new[]
+            {
+                194,
+                94,
+                95,
+                96,
+                97,
+                98,
+                369,
+                506,
+                632,
+                331,
+                1111
+            }, // sword (class 0 and 1)
+            new[]
+            {
+                114,
+                115,
+                116,
+                117,
+                118,
+                370,
+                332,
+                507,
+                633,
+                1112
+            }, // dart (2)
+            new[]
+            {
+                99,
+                100,
+                101,
+                102,
+                103,
+                333,
+                508,
+                634,
+                371,
+                1113
+            }, // kunai (3)
+            new[]
+            {
+                109,
+                110,
+                111,
+                112,
+                113,
+                372,
+                334,
+                509,
+                635,
+                1114
+            }, // bow (4)
+            new[]
+            {
+                104,
+                105,
+                106,
+                107,
+                108,
+                373,
+                335,
+                510,
+                636,
+                1115
+            }, // blade (5)
+            new[]
+            {
+                119,
+                120,
+                121,
+                122,
+                123,
+                374,
+                336,
+                511,
+                637,
+                1116
+            } // fan (6)
+        };
+        /// <summary>Compute weapon fits class through the authoritative player rules.</summary>
+        /// <param name="classId">Class identifier.</param>
+        /// <param name="itemId">Item identifier.</param>
+        private static bool WeaponFitsClass(int classId, int itemId)
+        {
+            int set = classId <= 1 ? 0 : classId - 1;
+            return Array.IndexOf(ClassWeapons[set], itemId) >= 0;
+        }
+
+        // Char.useEquipment: swap the bag item with the one worn in that slot
+        /// <summary>Use equipment through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <param name="item">Item.</param>
+        /// <param name="t">Current entry or time sample.</param>
+        private static void UseEquipment(PlayerState me, GameWorld world, PlayerItem item, ItemTemplateData t)
+        {
+            int indexUI = item.Index;
+            int slot = t.Type;
+            bool isFashion = t.Fashion > -1;
+            var target = isFashion ? me.Inventory.Fashion : me.Inventory.Equipment;
+            if (!isFashion)
+            {
+                if (t.Type == TypeWeapon && !WeaponFitsClass(me.Record.ClassId, item.Id))
+                {
+                    PlayerService.ServerDialog(me, "Vũ khí không thích hợp.");
+                    return;
+                }
+
+                if (me.Record.ClassId > 0 && item.Id == ItemWoodenSword)
+                {
+                    PlayerService.ServerDialog(me, "Vũ khí không thích hợp.");
+                    return;
+                }
+
+                if (slot == 15)
+                    return; // secret books need class rules that are not ported
+            }
+
+            var worn = target[slot];
+            if (worn != null)
+            {
+                worn.Index = indexUI;
+                worn.IsLock = true;
+                me.Inventory.Bag[indexUI] = worn;
+            }
+            else
+                me.Inventory.Bag[indexUI] = null;
+            item.IsLock = true;
+            item.Index = slot;
+            target[slot] = item;
+            if (!isFashion && t.Type == TypeWeapon)
+                PlayerTasks.OnEquipWeapon(me, world);
+            if (!isFashion)
+                PlayerTasks.OnEquipUpgraded(me, world, item, t);
+            PlayerCombat.SetAbility(me, world);
+            PlayerService.UseItem(me, indexUI);
+            Save(me);
+        }
+
+        // Char.itemBodyToBag
+        /// <summary>Perform item body to bag through the authoritative player rules.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <remarks>Locals: i: Loop/collection index.</remarks>
+        public static void ItemBodyToBag(Message m, PlayerState me, GameWorld world)
+        {
+            int indexUI = m.Reader.ReadSByte();
+            if (indexUI < 0)
+                return;
+            var source = indexUI < 16 ? me.Inventory.Equipment : me.Inventory.Fashion;
+            int slot = indexUI < 16 ? indexUI : indexUI - 16;
+            if (slot >= source.Length || source[slot] == null)
+                return;
+            var bag = me.Inventory.Bag;
+            for (int i = 0; i < bag.Length; i++)
+            {
+                if (bag[i] != null)
+                    continue;
+                var item = source[slot];
+                item.IsLock = true;
+                item.Index = i;
+                bag[i] = item;
+                source[slot] = null;
+                PlayerCombat.SetAbility(me, world);
+                PlayerService.ItemBodyToBag(me, indexUI, i);
+                Save(me);
+                return;
+            }
+
+            PlayerService.ServerDialog(me, "Hành trang không đủ chỗ trống");
+        }
+
+        // ---------------------------------------------------------------- shops (cmd 13, sub -103, cmd 42)
+        // Char.requestItem: the client asks for the content of a shop window
+        // Char.bagSort (Java): merge stackable, non-expiring items with the same template and lock state,
+        // then pack every item to the front of the bag. The client runs the same Char.bagSort when it
+        // receives BAG_SORT (-107), so both sides end with the same layout. No trade exists offline,
+        // so Java's "warningTrade" check is not needed.
+        public const sbyte BagSortSub = -107; // CMD.BAG_SORT
+        /// <summary>Perform bag sort through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        public static void BagSort(PlayerState me, GameWorld world)
+        {
+            SortContainer(me.Inventory.Bag, world);
+            Save(me);
+            me.Session.Send(PlayerService.Sub(BagSortSub));
+        }
+
+        // Char.boxSort: the original client sends -106, previously unhandled offline.
+        /// <summary>Perform box sort through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        public static void BoxSort(PlayerState me, GameWorld world)
+        {
+            if (!me.BoxOpen)
+                return;
+            SortContainer(me.Inventory.Box, world);
+            Save(me);
+            me.Session.Send(PlayerService.Sub(-106));
+        }
+
+        // Char.bagSort/boxSort merging retained; only explicit sorting groups by type and template.
+        /// <summary>Sort container through the authoritative player rules.</summary>
+        /// <param name="bag">Bag.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <remarks>Locals: t: Identifier taken from the selected record; i: Loop/collection index; a: Entry selected from the source collection; j: Nested loop/collection index; b: Entry selected from the source collection; it: Current item/iterator entry.</remarks>
+        private static void SortContainer(PlayerItem[] bag, GameWorld world)
+        {
+            var items = new List<PlayerItem>();
+            foreach (var it in bag)
+            {
+                if (it == null)
+                    continue;
+                var t = world.FindItem(it.Id);
+                if (t != null && InventoryGrouping.CanStack(t.Type, t.IsUpToUp) && !(it.Expire > 0))
+                    items.Add(it);
+            }
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                var a = items[i];
+                if (a == null)
+                    continue;
+                for (int j = i + 1; j < items.Count; j++)
+                {
+                    var b = items[j];
+                    if (b != null && b.Id == a.Id && b.IsLock == a.IsLock && (long)a.Quantity + b.Quantity <= InventoryGrouping.MaxStackQuantity)
+                    {
+                        a.Quantity += b.Quantity;
+                        bag[b.Index] = null;
+                        items[j] = null;
+                    }
+                }
+            }
+
+            for (int i = 0; i < bag.Length; i++)
+            {
+                if (bag[i] == null)
+                    continue;
+                for (int j = 0; j <= i; j++)
+                {
+                    if (bag[j] == null)
+                    {
+                        bag[j] = bag[i];
+                        bag[j].Index = j;
+                        bag[i] = null;
+                        break;
+                    }
+                }
+            }
+
+            InventoryGrouping.Group(bag, item => world.FindItem(item.Id).Type, item => item.Id, item => item.IsLock);
+            for (int i = 0; i < bag.Length; i++)
+                if (bag[i] != null)
+                    bag[i].Index = i;
+        }
+
+        public static bool RestrictSchoolStores = true;
+        // Offline school-shop rule requested by the user, shared by Char.requestItem,
+        // requestItemInfo and Store.buy so visible indices always refer to the same filtered list.
+        // Filter by the school's element, not by the visiting character's class. Neutral supplies remain common.
+        /// <summary>Compute school store through the authoritative player rules.</summary>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <param name="type">Type.</param>
+        /// <remarks>Locals: cls: Class.</remarks>
+        private static List<StoreItem> SchoolStore(PlayerState me, GameWorld world, int type)
+        {
+            var store = world.Store(type);
+            int element = me.MapId == 1 ? 1 : me.MapId == 72 ? 2 : me.MapId == 27 ? 3 : 0;
+            if (!RestrictSchoolStores || element == 0 || store == null)
+                return store;
+            var visible = new List<StoreItem>();
+            foreach (var item in store)
+            {
+                int itemElement = item.Sys;
+                if (itemElement == 0)
+                {
+                    int cls = PlayerSkills.BookClass(world, item.ItemId);
+                    if (cls >= 1 && cls <= 6)
+                        itemElement = (cls + 1) / 2;
+                }
+
+                if (itemElement == 0 || itemElement == element)
+                    visible.Add(item);
+            }
+
+            return visible;
+        }
+
+        /// <summary>Perform request shop through the authoritative player rules.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        public static void RequestShop(Message m, PlayerState me, GameWorld world)
+        {
+            int type = m.Reader.ReadSByte();
+            var store = SchoolStore(me, world, type);
+            if (store != null)
+                PlayerService.OpenUiShop(me, type, store);
+        }
+
+        // Char.buyItem + Store.buy
+        /// <summary>Buy item through the authoritative player rules.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <remarks>Locals: s: Entry selected from the source collection; t: Current entry or time sample; xu: Xu currency; yen: Yen currency; n: Number of entries or iterations; i: Loop/collection index.</remarks>
+        public static void BuyItem(Message m, PlayerState me, GameWorld world)
+        {
+            if (me.Record.TaskId < PlayerTasks.TaskDietSenTruCoc)
+            {
+                PlayerService.ServerDialog(me, "Hãy hoàn nhiệm vụ diệt trừ cóc để sử dụng chức năng này.");
+                return;
+            }
+
+            int typeUI = m.Reader.ReadSByte();
+            int indexUI = m.Reader.ReadSByte();
+            int quantity = m.Reader.Remaining >= 2 ? (ushort)m.Reader.ReadShort() : 1;
+            quantity = Math.Min(quantity, 30000);
+            if (quantity < 1)
+            {
+                PlayerService.ServerDialog(me, "Số lượng không hợp lệ!");
+                return;
+            }
+
+            var store = SchoolStore(me, world, typeUI);
+            if (store == null || indexUI < 0 || indexUI >= store.Count)
+                return;
+            var s = store[indexUI];
+            var t = world.FindItem(s.ItemId);
+            if (t == null)
+                return;
+            int slotNull = SlotNull(me);
+            if ((t.IsUpToUp && slotNull == 0) || (!t.IsUpToUp && slotNull < quantity))
+            {
+                PlayerService.ServerDialog(me, "Hành trang không đủ chỗ trống");
+                return;
+            }
+
+            long xu = (long)s.Coin * quantity, yen = (long)s.Yen * quantity, gold = (long)s.Gold * quantity;
+            if (xu > me.Progress.Xu || yen > me.Progress.Yen || gold > PlayerLuong.Get(me))
+            {
+                PlayerService.ServerDialog(me, "Không đủ tiền.");
+                return;
+            }
+
+            me.Progress.Xu -= xu;
+            me.Progress.Yen -= yen;
+            me.Progress.Luong -= (int)gold; // Store.buy: p.user.gold -= giaLuong (Service.buy shows the new balance)
+            PlayerService.Buy(me);
+            int n = t.IsUpToUp ? 1 : quantity;
+            for (int i = 0; i < n; i++)
+            {
+                var item = FromStore(s, t, true);
+                item.Quantity = t.IsUpToUp ? quantity : 1;
+                if (yen > 0 || gold > 0)
+                    item.IsLock = true;
+                AddItemToBag(me, world, item);
+            }
+
+            if (s.ItemId == ItemComNam)
+                PlayerTasks.OnBuyComNam(me, world, quantity);
+            Save(me);
+        }
+
+        // Converter.toItem(ItemStore, RANDOM_OPTION): a shop item with random options between the minimum and the maximum
+        /// <summary>Compute from store through the authoritative player rules.</summary>
+        /// <param name="s">Source text or serialized input.</param>
+        /// <param name="t">Current entry or time sample.</param>
+        /// <param name="random">Random.</param>
+        /// <remarks>Locals: i: Loop/collection index.</remarks>
+        public static PlayerItem FromStore(StoreItem s, ItemTemplateData t, bool random)
+        {
+            var item = NewItem(s.ItemId, 1, s.IsLock);
+            if (s.Expire != -1)
+                item.Expire = Now() + s.Expire;
+            if (PlayerService.IsWearable(t) || (t.Type >= 29 && t.Type <= 34))
+            {
+                item.System = s.Sys;
+                for (int i = 0; i < s.OptionIds.Length; i++)
+                    item.Options.Add(new PlayerItemOption { Id = s.OptionIds[i], Param = random ? NextInt(s.MinParams[i], s.MaxParams[i]) : s.MaxParams[i] });
+            }
+
+            return item;
+        }
+
+        // Char.requestItemInfo for shops (types 2, 6-9, 14-29, 32, 34), the bag (3) and the body (5)
+        /// <summary>Perform request item info through the authoritative player rules.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <remarks>Locals: src: Source.</remarks>
+        public static void RequestItemInfo(Message m, PlayerState me, GameWorld world)
+        {
+            int typeUI = m.Reader.ReadSByte();
+            int indexUI = m.Reader.ReadSByte();
+            if (indexUI < 0)
+                return;
+            if (typeUI == 3)
+            {
+                var bag = me.Inventory.Bag;
+                if (indexUI < bag.Length && bag[indexUI] != null)
+                    PlayerService.ItemInfo(me, bag[indexUI], world.FindItem(bag[indexUI].Id), typeUI, indexUI);
+            }
+            else if (typeUI == 5)
+            {
+                var src = indexUI < 16 ? me.Inventory.Equipment : me.Inventory.Fashion;
+                int slot = indexUI < 16 ? indexUI : indexUI - 16;
+                if (slot < src.Length && src[slot] != null)
+                    PlayerService.ItemInfo(me, src[slot], world.FindItem(src[slot].Id), typeUI, indexUI);
+            }
+            else
+            {
+                var store = SchoolStore(me, world, typeUI);
+                if (store != null && indexUI < store.Count)
+                    PlayerService.ItemStoreInfo(me, store[indexUI], world.FindItem(store[indexUI].ItemId), typeUI, indexUI);
+            }
+        }
+
+        // ---------------------------------------------------------------- drops and pickup
+        // Mob.dead excludes BU_NHIN from loot. Offline deviation: apply that exclusion to every drop path,
+        // and block all loot at the user-configured overlevel limit before quest drops or currency rewards.
+        /// <summary>Check whether drop loot applies to the supplied state.</summary>
+        /// <param name="killer">Authoritative runtime character state.</param>
+        /// <param name="mob">Monster being inspected or targeted.</param>
+        /// <param name="rules">Rules.</param>
+        public static bool CanDropLoot(PlayerState killer, Mob mob, LootRules rules = null)
+        {
+            return (!(rules == null || rules.BlockTrainingDummy) || mob.Template.Id != MobTrainingDummy) && (!(rules == null || rules.BlockOverlevel) || killer.Level - mob.Level < Math.Max(1, rules == null ? DropLevelGapLimit : rules.OverlevelGap));
+        }
+
+        // Mob.dead for ordinary maps (non-boss): quest item, then 10 % yen / 10 % item / 5 % equipment for monsters within 7 levels
+        /// <summary>Handle monster dead through the authoritative player rules.</summary>
+        /// <param name="killer">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <param name="zone">Map zone containing the operation&#x27;s actors.</param>
+        /// <param name="mob">Monster being inspected or targeted.</param>
+        /// <remarks>Locals: r: Result being assembled or returned; yen: Yen currency; id: Sample drawn from the random-number source; s: Number of entries in the source collection; i: Loop/collection index.</remarks>
+        public static void OnMobDead(PlayerState killer, GameWorld world, Zone zone, Mob mob)
+        {
+            if (!CanDropLoot(killer, mob, world == null ? null : world.LootRules))
+                return;
+            int taskItem = PlayerTasks.TaskItemFor(killer, mob.Template.Id);
+            if (taskItem != -1 && (Rng.Next(3) == 0 || mob.Template.Id == 69)) // heo rừng always drops the axe
+                Drop(killer, world, zone, mob, NewItem(taskItem));
+            if (mob.IsBoss)
+                return;
+            int dLevel = Math.Abs(mob.Level - killer.Level);
+            if (world.LootRules.LimitOrdinaryLoot && dLevel > world.LootRules.OrdinaryMaxGap)
+                return;
+            int r = Rng.Next(100);
+            if (r < 10)
+            {
+                // Mob.dropItem(YEN): currency is a ground item, credited only on pickup.
+                int yen = NextInt(mob.Level * 15, (mob.Level + 10) * 15);
+                if (mob.LevelBoss == 1)
+                    yen *= 20;
+                else if (mob.LevelBoss == 2)
+                    yen *= 30;
+                // Pickup quantity is an unsigned short in the original protocol.
+                while (yen > 0)
+                {
+                    int bundle = Math.Min(ushort.MaxValue, yen);
+                    Drop(killer, world, zone, mob, NewItem(ItemYen, bundle));
+                    yen -= bundle;
+                }
+            }
+            else if (r < 20)
+            {
+                int id = world.RandomDropItem(mob.Level, mob.IsBoss);
+                var item = NewItem(id);
+                item.IsLock = id < 12 && mob.LevelBoss == 0;
+                Drop(killer, world, zone, mob, item);
+            }
+            else if (r < 25)
+            {
+                int min = mob.Level / 10 * 10, max = Math.Min(min + 9, 69);
+                var list = world.EquipmentInLevelRange(min, max);
+                if (list.Count == 0)
+                    return;
+                var s = list[Rng.Next(list.Count)];
+                var item = FromStore(s, world.FindItem(s.ItemId), true);
+                int remove = item.Options.Count > 1 ? Rng.Next(item.Options.Count - 1) : 0;
+                for (int i = 0; i < remove; i++)
+                    item.Options.RemoveAt(Rng.Next(item.Options.Count));
+                if (remove > 0)
+                    item.Yen = 5;
+                item.IsLock = false;
+                Drop(killer, world, zone, mob, item);
+            }
+        }
+
+        // Mob.dropItem(SUSHI): a roasted monster (skill Kakyuu) leaves sushi that heals `heal` HP when picked up
+        /// <summary>Perform drop sushi through the authoritative player rules.</summary>
+        /// <param name="owner">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <param name="zone">Map zone containing the operation&#x27;s actors.</param>
+        /// <param name="mob">Monster being inspected or targeted.</param>
+        /// <param name="heal">Heal.</param>
+        public static void DropSushi(PlayerState owner, GameWorld world, Zone zone, Mob mob, int heal)
+        {
+            Drop(owner, world, zone, mob, NewItem(ItemSushi, Math.Max(1, heal)));
+        }
+
+        // Mob.dropItem: put the item on the ground next to the monster
+        /// <summary>Perform drop through the authoritative player rules.</summary>
+        /// <param name="owner">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <param name="zone">Map zone containing the operation&#x27;s actors.</param>
+        /// <param name="mob">Monster being inspected or targeted.</param>
+        /// <param name="item">Item.</param>
+        /// <remarks>Locals: t: Identifier taken from the selected record; x: Horizontal position/difference used by this calculation; y: Vertical position/difference used by this calculation; it: Identifier taken from the selected record.</remarks>
+        private static void Drop(PlayerState owner, GameWorld world, Zone zone, Mob mob, PlayerItem item)
+        {
+            if (!CanDropLoot(owner, mob, world == null ? null : world.LootRules))
+                return; // includes DropSushi, which bypasses OnMobDead
+            if (zone.ItemMaps.Count > 100)
+                return;
+            var t = world.FindItem(item.Id);
+            if (t == null)
+                return;
+            if (t.Type == TypeTask)
+                item.IsLock = true;
+            item.Expire = -1;
+            short x = (short)NextInt(mob.X - 20, mob.X + 20);
+            var grid = world.GetGrid(zone.Tile);
+            if (x < 50)
+                x = 50;
+            else if (x > grid.PxW - 50)
+                x = (short)(grid.PxW - 50);
+            short y = grid.CollisionY(x, (short)(mob.Y / 24 * 24));
+            var it = new ItemMapEntry
+            {
+                Id = zone.NumberDropItem++,
+                X = x,
+                Y = y,
+                OwnerId = owner.Record.Id,
+                CreatedAt = Now(),
+                Item = item
+            };
+            zone.ItemMaps.Add(it);
+            PlayerService.AddItemMap(zone, it);
+        }
+
+        // Char.pickItem (cmd -14)
+        /// <summary>Pick up item through the authoritative player rules.</summary>
+        /// <param name="m">Framed protocol message.</param>
+        /// <param name="me">Authoritative runtime character state.</param>
+        /// <param name="world">Authoritative game world.</param>
+        /// <remarks>Locals: id: Identifier; it: Current item/iterator entry; t: Identifier taken from the selected record; x: Horizontal coordinate in the caller&#x27;s coordinate space.</remarks>
+        public static void PickItem(Message m, PlayerState me, GameWorld world)
+        {
+            if (me.IsDead)
+                return;
+            short id = m.Reader.ReadShort();
+            var zone = me.Zone;
+            ItemMapEntry it = null;
+            foreach (var x in zone.ItemMaps)
+                if (x.Id == id)
+                {
+                    it = x;
+                    break;
+                }
+
+            if (it == null || it.PickedUp)
+                return;
+            if (!TaskMechanics.CanPick(me, it))
+                return;
+            if (!IsWithinPickupRange(me, it))
+                return;
+            var item = it.Item;
+            var t = world.FindItem(item.Id);
+            if (t == null)
+                return;
+            if (!GroundLootPolicy.HasOwnership(me.Record.Id, it, Now()))
+            {
+                PlayerService.ServerMessage(me, "Vật phẩm của người khác");
+                return;
+            }
+
+            if (!CanReceiveGroundItem(me, t, item))
+            {
+                PlayerService.ServerDialog(me, "Hành trang không đủ chỗ trống");
+                return;
+            }
+
+            it.PickedUp = true;
+            if (item.Id == ItemSushi)
+            {
+                me.Hp = Math.Min(me.MaxHp, me.Hp + item.Quantity);
+                PlayerService.LoadHp(me);
+                PlayerService.UpdateHp(me);
+            }
+            else if (t.Type == TypeMoney)
+            {
+                long before = me.Progress.Yen;
+                // ITEMMAP_MYPICK already credits the client. Do not also send an ADD_YEN delta.
+                AddYen(me, item.Quantity, false);
+                item.Quantity = (int)(me.Progress.Yen - before);
+            }
+            else
+            {
+                if (t.Type == TypeTask || t.Type == TypeTaskWait || t.Type == TypeTaskSave)
+                    item.IsLock = true;
+                AddItemToBag(me, world, item);
+            }
+
+            PlayerService.PickItem(me, it, t);
+            zone.ItemMaps.Remove(it);
+            PlayerTasks.OnPickItem(me, world, item, t);
+            TaskMechanics.OnPicked(me, it); // map piece in the tunnel: leave after 3 s
+        }
+
+        // Java Zone.updateItemMap / ItemMap.isExpired; offline timing is shared by bots and humans.
+        /// <summary>Update item maps through the authoritative player rules.</summary>
+        /// <param name="zone">Map zone containing the operation&#x27;s actors.</param>
+        /// <remarks>Locals: i: Number of entries in the source collection; it: Entry selected from the source collection.</remarks>
+        public static void UpdateItemMaps(Zone zone)
+        {
+            if (zone.ItemMaps.Count == 0)
+                return;
+            long now = Now();
+            for (int i = zone.ItemMaps.Count - 1; i >= 0; i--)
+            {
+                var it = zone.ItemMaps[i];
+                if (it.Fixed)
+                    continue; // quest nodes stay until picked
+                if (now - it.CreatedAt < GroundLootPolicy.LifetimeMs)
+                    continue;
+                zone.ItemMaps.RemoveAt(i);
+                PlayerService.RemoveItemMap(zone, it.Id);
+            }
+        }
+    }
+}

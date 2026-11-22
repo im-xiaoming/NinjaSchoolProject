@@ -1,0 +1,384 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace NsoServer.Store
+{
+    public sealed class UserRecord
+    {
+        // Id: Identifier.
+        public int Id;
+        public string Username;
+        public string Salt;
+        public string PasswordHash;
+    }
+
+    public sealed class PlayerRecord
+    {
+        // Id: Identifier.
+        public int Id;
+        public int UserId;
+        public string Name;
+        public sbyte Gender;
+        public short Head;
+        public sbyte ClassId;
+        // Exp: Experience.
+        public long Exp;
+        public short Weapon = -1;
+        public short Body = -1;
+        public short Leg = -1;
+        public long LastLogout;
+        // where the character stands (defaults of the original `players.map`: Lang Tone)
+        public int MapId = 22, X = 1741, Y = 264;
+        public int TaskId; // main quest progress; unlocks maps
+        // Reserved for later phases: bag, skills, task progress, etc. (JSON, same shape as the Java `players.data`)
+        public string Data = "{}";
+    }
+
+    // Local replacement for the MySQL `users` / `players` tables. The records live in memory; every change is written
+    // back in full. Storage: the SQLite save database nso.db (SqliteSaveDb, default). The former tab-separated files
+    // users.tsv / players.tsv are imported once into a new database (then renamed *.tsv.migrated) and remain the
+    // fallback when SQLite cannot be opened (missing native library, locked or corrupt file); Backend tells which.
+    public sealed class AccountStore
+    {
+        public const string DatabaseFile = "nso.db";
+        private readonly object sync = new object ();
+        private readonly string directory, usersFile, playersFile;
+        private readonly List<UserRecord> users = new List<UserRecord>();
+        private readonly List<PlayerRecord> players = new List<PlayerRecord>();
+        // db: Db.
+        private SqliteSaveDb db;
+        private bool closed; // after Close nothing is written (a late tick must not fall back to the TSV files)
+        /// <summary>"sqlite", "sqlite (imported TSV)" or "tsv ..." (fallback). </summary>
+        public string Backend { get; private set; }
+        /// <summary>Why SQLite could not be used, or null.</summary>
+        public string BackendError { get; private set; }
+
+        /// <summary>Initialize account store state and its supplied dependencies.</summary>
+        /// <param name="directory">Directory.</param>
+        /// <param name="useSqlite">Use sqlite.</param>
+        public AccountStore(string directory, bool useSqlite = true)
+        {
+            this.directory = directory;
+            Directory.CreateDirectory(directory);
+            usersFile = Path.Combine(directory, "users.tsv");
+            playersFile = Path.Combine(directory, "players.tsv");
+            if (useSqlite)
+                OpenSqlite();
+            if (db == null)
+            {
+                LoadTsv();
+                Backend = useSqlite ? "tsv (SQLite unavailable)" : "tsv";
+            }
+        }
+
+        /// <summary>Open sqlite.</summary>
+        private void OpenSqlite()
+        {
+            try
+            {
+                db = new SqliteSaveDb(Path.Combine(directory, DatabaseFile));
+                bool hasTsv = File.Exists(usersFile) || File.Exists(playersFile);
+                if (db.IsEmpty && hasTsv)
+                {
+                    // one-time import of the old save files; they are kept, renamed, as a backup
+                    LoadTsv();
+                    db.SaveAll(users, players);
+                    if (File.Exists(usersFile))
+                        File.Move(usersFile, usersFile + ".migrated");
+                    if (File.Exists(playersFile))
+                        File.Move(playersFile, playersFile + ".migrated");
+                    Backend = "sqlite (imported TSV)";
+                }
+                else
+                {
+                    db.Load(users, players);
+                    Backend = "sqlite";
+                }
+            }
+            catch (Exception ex)
+            {
+                var inner = ex is TypeInitializationException && ex.InnerException != null ? ex.InnerException : ex;
+                BackendError = inner.GetType().Name + ": " + inner.Message;
+                if (db != null)
+                {
+                    try
+                    {
+                        db.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    db = null;
+                }
+
+                users.Clear();
+                players.Clear();
+            }
+        }
+
+        /// <summary>Closes the database (server shutdown).</summary>
+        public void Close()
+        {
+            lock (sync)
+            {
+                closed = true;
+                if (db != null)
+                {
+                    db.Dispose();
+                    db = null;
+                }
+            }
+        }
+
+        /// <summary>A named JSON document saved with the game (SQLite kv table; fallback: &lt;key&gt;.json), or null.</summary>
+        /// <param name="key">Key.</param>
+        /// <remarks>Locals: f: Current field/value.</remarks>
+        public string GetDocument(string key)
+        {
+            lock (sync)
+            {
+                if (db != null)
+                    return db.GetDocument(key);
+                string f = Path.Combine(directory, key + ".json");
+                return File.Exists(f) ? File.ReadAllText(f, Encoding.UTF8) : null;
+            }
+        }
+
+        /// <summary>Set document.</summary>
+        /// <param name="key">Key.</param>
+        /// <param name="json">Json.</param>
+        public void SetDocument(string key, string json)
+        {
+            lock (sync)
+            {
+                if (closed)
+                    return;
+                if (db != null)
+                    db.SetDocument(key, json);
+                else
+                    WriteAtomic(Path.Combine(directory, key + ".json"), json);
+            }
+        }
+
+        public enum LoginResult
+        {
+            Ok,
+            Created,
+            WrongPassword,
+            BadName
+        }
+
+        // Offline mode: an unknown username is registered on first login (there is no web registration page).
+        /// <summary>Compute login.</summary>
+        /// <param name="username">Username.</param>
+        /// <param name="password">Password.</param>
+        /// <param name="user">User.</param>
+        public LoginResult Login(string username, string password, out UserRecord user)
+        {
+            user = null;
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || !IsAlnum(username))
+                return LoginResult.BadName;
+            lock (sync)
+            {
+                user = users.Find(u => u.Username == username);
+                if (user != null)
+                    return Hash(user.Salt, password) == user.PasswordHash ? LoginResult.Ok : LoginResult.WrongPassword;
+                string salt = Guid.NewGuid().ToString("N");
+                user = new UserRecord
+                {
+                    Id = users.Count == 0 ? 1 : users[users.Count - 1].Id + 1,
+                    Username = username,
+                    Salt = salt,
+                    PasswordHash = Hash(salt, password)
+                };
+                users.Add(user);
+                Save();
+                return LoginResult.Created;
+            }
+        }
+
+        /// <summary>Return players.</summary>
+        /// <param name="userId">User identifier.</param>
+        public List<PlayerRecord> GetPlayers(int userId)
+        {
+            lock (sync)
+            {
+                var list = players.FindAll(p => p.UserId == userId);
+                list.Sort((a, b) => b.LastLogout.CompareTo(a.LastLogout));
+                return list.Count > 3 ? list.GetRange(0, 3) : list;
+            }
+        }
+
+        /// <summary>Compute name taken.</summary>
+        /// <param name="name">Name.</param>
+        public bool NameTaken(string name)
+        {
+            lock (sync)
+                return players.Exists(p => p.Name == name);
+        }
+
+        /// <summary>Add player.</summary>
+        /// <param name="userId">User identifier.</param>
+        /// <param name="name">Name.</param>
+        /// <param name="gender">Gender.</param>
+        /// <param name="head">Head.</param>
+        /// <remarks>Locals: p: Number of entries in the source collection.</remarks>
+        public PlayerRecord AddPlayer(int userId, string name, sbyte gender, short head)
+        {
+            lock (sync)
+            {
+                var p = new PlayerRecord
+                {
+                    Id = players.Count == 0 ? 1 : players[players.Count - 1].Id + 1,
+                    UserId = userId,
+                    Name = name,
+                    Gender = gender,
+                    Head = head
+                };
+                players.Add(p);
+                Save();
+                return p;
+            }
+        }
+
+        // Persists changes made to PlayerRecord objects (position, progress).
+        /// <summary>Flush account store.</summary>
+        public void Flush()
+        {
+            lock (sync)
+                Save();
+        }
+
+        /// <summary>Check whether alnum applies to the supplied state.</summary>
+        /// <param name="s">Source text or serialized input.</param>
+        /// <remarks>Locals: c: Client character being inspected or controlled.</remarks>
+        private static bool IsAlnum(string s)
+        {
+            foreach (char c in s)
+                if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
+                    return false;
+            return true;
+        }
+
+        /// <summary>Check whether h applies to the supplied state.</summary>
+        /// <param name="salt">Salt.</param>
+        /// <param name="password">Password.</param>
+        private static string Hash(string salt, string password)
+        {
+            using (var sha = SHA256.Create())
+                return Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(salt + password)));
+        }
+
+        /// <summary>Compute esc.</summary>
+        /// <param name="s">Source text or serialized input.</param>
+        private static string Esc(string s)
+        {
+            return s.Replace("\\", "\\\\").Replace("\t", "\\t").Replace("\n", "\\n").Replace("\r", "\\r");
+        }
+
+        /// <summary>Compute unesc.</summary>
+        /// <param name="s">Source text or serialized input.</param>
+        /// <remarks>Locals: sb: Text output builder; i: Loop/collection index; n: Client character being inspected or controlled.</remarks>
+        private static string Unesc(string s)
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (s[i] == '\\' && i + 1 < s.Length)
+                {
+                    char n = s[++i];
+                    sb.Append(n == 't' ? '\t' : n == 'n' ? '\n' : n == 'r' ? '\r' : n);
+                }
+                else
+                    sb.Append(s[i]);
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>Load tsv.</summary>
+        /// <remarks>Locals: f: Current field/value.</remarks>
+        private void LoadTsv()
+        {
+            if (File.Exists(usersFile))
+                foreach (var line in File.ReadAllLines(usersFile, Encoding.UTF8))
+                {
+                    var f = line.Split('\t');
+                    if (f.Length < 4)
+                        continue;
+                    users.Add(new UserRecord { Id = int.Parse(f[0]), Username = Unesc(f[1]), Salt = f[2], PasswordHash = f[3] });
+                }
+
+            if (File.Exists(playersFile))
+                foreach (var line in File.ReadAllLines(playersFile, Encoding.UTF8))
+                {
+                    var f = line.Split('\t');
+                    if (f.Length < 12)
+                        continue;
+                    var rec = new PlayerRecord
+                    {
+                        Id = int.Parse(f[0]),
+                        UserId = int.Parse(f[1]),
+                        Name = Unesc(f[2]),
+                        Gender = sbyte.Parse(f[3]),
+                        Head = short.Parse(f[4]),
+                        ClassId = sbyte.Parse(f[5]),
+                        Exp = long.Parse(f[6]),
+                        Weapon = short.Parse(f[7]),
+                        Body = short.Parse(f[8]),
+                        Leg = short.Parse(f[9]),
+                        LastLogout = long.Parse(f[10]),
+                        Data = Unesc(f[11])
+                    };
+                    if (f.Length >= 15)
+                    {
+                        rec.MapId = int.Parse(f[12]);
+                        rec.X = int.Parse(f[13]);
+                        rec.Y = int.Parse(f[14]);
+                    }
+
+                    if (f.Length >= 16)
+                        rec.TaskId = int.Parse(f[15]);
+                    players.Add(rec);
+                }
+        }
+
+        /// <summary>Save account store.</summary>
+        /// <remarks>Locals: u: Text output builder; p: Text output builder; x: Horizontal coordinate in the caller&#x27;s coordinate space.</remarks>
+        private void Save()
+        {
+            if (closed)
+                return;
+            if (db != null)
+            {
+                db.SaveAll(users, players);
+                return;
+            }
+
+            var u = new StringBuilder();
+            foreach (var x in users)
+                u.Append(x.Id).Append('\t').Append(Esc(x.Username)).Append('\t').Append(x.Salt).Append('\t').Append(x.PasswordHash).Append('\n');
+            WriteAtomic(usersFile, u.ToString());
+            var p = new StringBuilder();
+            foreach (var x in players)
+                p.Append(x.Id).Append('\t').Append(x.UserId).Append('\t').Append(Esc(x.Name)).Append('\t').Append(x.Gender).Append('\t').Append(x.Head).Append('\t').Append(x.ClassId).Append('\t').Append(x.Exp).Append('\t').Append(x.Weapon).Append('\t').Append(x.Body).Append('\t').Append(x.Leg).Append('\t').Append(x.LastLogout).Append('\t').Append(Esc(x.Data)).Append('\t').Append(x.MapId).Append('\t').Append(x.X).Append('\t').Append(x.Y).Append('\t').Append(x.TaskId).Append('\n');
+            WriteAtomic(playersFile, p.ToString());
+        }
+
+        /// <summary>Write atomic.</summary>
+        /// <param name="path">Path.</param>
+        /// <param name="text">Text fragment assembled or read by this operation.</param>
+        private static void WriteAtomic(string path, string text)
+        {
+            string tmp = path + ".tmp";
+            File.WriteAllText(tmp, text, new UTF8Encoding(false));
+            if (File.Exists(path))
+                File.Delete(path);
+            File.Move(tmp, path);
+        }
+    }
+}
