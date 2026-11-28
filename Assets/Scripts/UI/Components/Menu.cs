@@ -70,15 +70,6 @@ public class Menu
     private bool isClose;
     public bool[] isNotClose;
     public long timeStart;
-    /// <summary>Start without close button.</summary>
-    /// <param name="menuItems">Menu items (milliseconds).</param>
-    /// <param name="pos">Position.</param>
-    public void startWithoutCloseButton(MyVector menuItems, int pos)
-    {
-        startAt(menuItems, pos);
-        disableClose = true;
-    }
-
     /// <summary>Start at.</summary>
     /// <param name="menuItems">Menu items (milliseconds).</param>
     /// <param name="pos">Retained for call compatibility; not read by this implementation.</param>
@@ -434,61 +425,32 @@ public class Menu
         }
     }
 
-    /// <summary>Draw menu in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    /// <remarks>Locals: i: Loop/collection index; num: Entry selected from the source collection; j: Nested loop/collection index.</remarks>
-    public void paintMenu(mGraphics g)
+    // ---- read by the Canvas UI (MenuView), which draws the menu instead of the old paintMenu ----
+    /// <summary>Horizontal scroll of the row of buttons at render time (smoothed).</summary>
+    public float PaintScrollX { get { return Interp.EffectPosition(paintScrollX, cmx); } }
+    /// <summary>Bottom bar buttons: "Chọn" (keyboard only), centre, and "Đóng" unless closing is disabled.</summary>
+    public Command LeftCommand { get { return GameCanvas.isTouch ? null : left; } }
+    public Command CenterCommand { get { return center; } }
+    public Command CloseCommand { get { return disableClose ? null : right; } }
+
+    /// <summary>The "Chọn" button: same as the left soft key.</summary>
+    public void PressSelect()
     {
-        g.translate(-g.getTranslateX(), -g.getTranslateY());
-        g.translate(-cmx, 0);
-        for (int i = 0; i < menuItems.size(); i++)
-        {
-            using (g.Offset(cmx - Interp.EffectPosition(paintScrollX, cmx), PaintRowY(i) - menuTemY[i]))
-            {
-                if (i == menuSelectedItem)
-                {
-                    g.drawImage(GameScr.imgMenu2, menuX + i * menuW - 1, menuTemY[i] + 1, mGraphics.TOP | mGraphics.LEFT);
-                }
-                else
-                {
-                    g.drawImage(GameScr.imgMenu1, menuX + i * menuW - 1, menuTemY[i] + 1, mGraphics.TOP | mGraphics.LEFT);
-                }
-
-                Command item = (Command)menuItems.elementAt(i);
-                string[] lines = item.subCaption;
-                int lineCount = lines == null ? 1 : lines.Length;
-                int num = menuTemY[i] + (menuH - lineCount * 14) / 2 + 1;
-                // Offline fix: centre the caption by its drawn pixels ("menuCell" in TextCalib), not by the bitmap font's advance box,
-                // which put the text visibly right of the cell centre. Vertical position is unchanged.
-                TextCalib.Use("menuCell");
-                try
-                {
-                    for (int j = 0; j < lineCount; j++)
-                        mFont.tahoma_7_yellow.drawString(g, lines == null ? item.caption : lines[j], menuX + i * menuW + menuW / 2 - 2, num + j * 14, 2);
-                }
-                finally
-                {
-                    TextCalib.Clear();
-                }
-            }
-        }
-
-        g.translate(-g.getTranslateX(), -g.getTranslateY());
-        Command command = ((!disableClose) ? right : null);
-        if (!GameCanvas.isTouch)
-        {
-            if (right != null)
-            {
-                right.x = Paint.CmdRightX;
-                right.y = Paint.CmdY;
-            } // follow "Ninja School UI Layout" live
-
-            GameCanvas.paintz.paintCmdBar(g, left, center, command);
-        }
+        if (!showMenu || isScrolling() || menuSelectedItem < 0)
+            return;
+        if (left.idAction > 0)
+            perform(left.idAction, left.p);
         else
-        {
-            GameCanvas.paintz.paintCmdBar(g, null, center, command);
-        }
+            waitToPerform = 2;
+    }
+
+    /// <summary>The "Đóng" button: same as the right soft key.</summary>
+    public void PressClose()
+    {
+        if (!showMenu || disableClose || isScrolling())
+            return;
+        close = true;
+        isClose = true;
     }
 
     /// <summary>Close menu.</summary>

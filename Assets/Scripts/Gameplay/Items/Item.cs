@@ -159,48 +159,6 @@ public class Item
         return item;
     }
 
-    /// <summary>Return pecent upgrade vu khi.</summary>
-    /// <param name="updrade">Updrade.</param>
-    /// <remarks>Locals: num: Entry selected from the source collection.</remarks>
-    public int getPecentUpgradeVuKhi(int updrade)
-    {
-        int num = GameScr.crystals[template.id] * 100 / GameScr.upWeapon[updrade];
-        if (num > GameScr.maxPercents[updrade])
-        {
-            num = GameScr.maxPercents[updrade];
-        }
-
-        return num;
-    }
-
-    /// <summary>Return pecent upgrade do right.</summary>
-    /// <param name="updrade">Updrade.</param>
-    /// <remarks>Locals: num: Entry selected from the source collection.</remarks>
-    public int getPecentUpgradeDoRight(int updrade)
-    {
-        int num = GameScr.crystals[template.id] * 100 / GameScr.upAdorn[updrade];
-        if (num > GameScr.maxPercents[updrade])
-        {
-            num = GameScr.maxPercents[updrade];
-        }
-
-        return num;
-    }
-
-    /// <summary>Return pecent upgrade do left.</summary>
-    /// <param name="updrade">Updrade.</param>
-    /// <remarks>Locals: num: Entry selected from the source collection.</remarks>
-    public int getPecentUpgradeDoLeft(int updrade)
-    {
-        int num = GameScr.crystals[template.id] * 100 / GameScr.upClothe[updrade];
-        if (num > GameScr.maxPercents[updrade])
-        {
-            num = GameScr.maxPercents[updrade];
-        }
-
-        return num;
-    }
-
     /// <summary>Compute view next.</summary>
     /// <param name="up">Up.</param>
     /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index.</remarks>
@@ -531,28 +489,6 @@ public class Item
         return false;
     }
 
-    /// <summary>Check whether type stack applies to the supplied state.</summary>
-    public bool isTypeStack()
-    {
-        if (expires == -1 && (template.type == 16 || template.type == 17))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether type crystal applies to the supplied state.</summary>
-    public bool isTypeCrystal()
-    {
-        if (template.type == 26)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     /// <summary>Check whether type weapon applies to the supplied state.</summary>
     public bool isTypeWeapon()
     {
@@ -562,101 +498,6 @@ public class Item
         }
 
         return false;
-    }
-
-    /// <summary>Check whether item class0 applies to the supplied state.</summary>
-    public bool isItemClass0()
-    {
-        if (itemId == 194 || itemId == 94 || itemId == 95 || itemId == 96 || itemId == 97 || itemId == 98)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether item class1 applies to the supplied state.</summary>
-    public bool isItemClass1()
-    {
-        if (itemId == 194 || itemId == 94 || itemId == 95 || itemId == 96 || itemId == 97 || itemId == 98)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether item class2 applies to the supplied state.</summary>
-    public bool isItemClass2()
-    {
-        if (itemId == 99 || itemId == 100 || itemId == 101 || itemId == 102 || itemId == 103)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether item class3 applies to the supplied state.</summary>
-    public bool isItemClass3()
-    {
-        if (itemId == 104 || itemId == 105 || itemId == 106 || itemId == 107 || itemId == 108)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether item class4 applies to the supplied state.</summary>
-    public bool isItemClass4()
-    {
-        if (itemId == 109 || itemId == 110 || itemId == 111 || itemId == 112 || itemId == 113)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether item class5 applies to the supplied state.</summary>
-    public bool isItemClass5()
-    {
-        if (itemId == 114 || itemId == 115 || itemId == 116 || itemId == 117 || itemId == 118)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether item class6 applies to the supplied state.</summary>
-    public bool isItemClass6()
-    {
-        if (itemId == 119 || itemId == 120 || itemId == 121 || itemId == 122 || itemId == 123)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Check whether type yoroi applies to the supplied state.</summary>
-    public bool isTypeYoroi()
-    {
-        return template.type == TYPE_AOCHOANG;
-    }
-
-    /// <summary>Check whether type task applies to the supplied state.</summary>
-    public bool isTypeTask()
-    {
-        return template.type == TYPE_TASK || template.type == TYPE_TASK_WAIT;
-    }
-
-    /// <summary>Check whether dont sale applies to the supplied state.</summary>
-    public bool isdontSale()
-    {
-        return template.id == 799 || template.id == 800 || template.id == 849 || template.id == 795 || template.id == 796 || template.id == 806 || template.id == 805 || template.type == TYPE_AOCHOANG || template.type == TYPE_TASK || template.type == TYPE_TASK_WAIT;
     }
 
     /// <summary>Check whether newitem applies to the supplied state.</summary>
@@ -678,44 +519,4 @@ public class Item
         return false;
     }
 
-    /// <summary>Check option.</summary>
-    /// <param name="var1">Compatibility argument retained under its original legacy name.</param>
-    /// <remarks>Locals: var2: Intermediate value retained under its original legacy name; var3: Intermediate value retained under its original legacy name.</remarks>
-    public bool checkOption(int var1)
-    {
-        if (options != null)
-        {
-            for (int var2 = 0; var2 < this.options.size(); ++var2)
-            {
-                ItemOption var3;
-                if ((var3 = (ItemOption)this.options.elementAt(var2)) != null && var3.optionTemplate.id == var1)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Count options.</summary>
-    /// <param name="var1">Compatibility argument retained under its original legacy name.</param>
-    /// <remarks>Locals: var2: Intermediate value retained under its original legacy name; var3: Intermediate value retained under its original legacy name; var4: Intermediate value retained under its original legacy name.</remarks>
-    public int countOptions(int var1)
-    {
-        int var2 = 0;
-        if (options != null)
-        {
-            for (int var3 = 0; var3 < options.size(); ++var3)
-            {
-                ItemOption var4;
-                if ((var4 = (ItemOption)this.options.elementAt(var3)) != null && var4.optionTemplate.id == var1)
-                {
-                    ++var2;
-                }
-            }
-        }
-
-        return var2;
-    }
 }

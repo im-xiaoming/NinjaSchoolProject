@@ -40,12 +40,6 @@ public class myReader
         return 0;
     }
 
-    /// <summary>Read signed byte.</summary>
-    public sbyte readsbyte()
-    {
-        return readSByte();
-    }
-
     /// <summary>Read byte.</summary>
     public sbyte readByte()
     {
@@ -127,31 +121,10 @@ public class myReader
         return num;
     }
 
-    /// <summary>Read bool.</summary>
-    public bool readBool()
-    {
-        return readSByte() > 0;
-    }
-
     /// <summary>Read boolean.</summary>
     public bool readBoolean()
     {
         return readSByte() > 0;
-    }
-
-    /// <summary>Read string.</summary>
-    /// <remarks>Locals: num: Field decoded from the incoming binary payload; array: Entry selected from the source collection; i: Loop/collection index.</remarks>
-    public string readString()
-    {
-        short num = readShort();
-        byte[] array = new byte[num];
-        for (int i = 0; i < num; i++)
-        {
-            array[i] = convertSbyteToByte(readSByte());
-        }
-
-        UTF8Encoding uTF8Encoding = new UTF8Encoding();
-        return uTF8Encoding.GetString(array);
     }
 
     /// <summary>Read string utf.</summary>

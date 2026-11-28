@@ -265,8 +265,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
     public static Image imgSelect;
     public static Image imgAnalog1;
     public static Image imgAnalog2;
-    public static Image imgMenu1;
-    public static Image imgMenu2;
     public static Image imgTf;
     public static Image imgMatcho;
     public static Image imgFiremoto;
@@ -879,17 +877,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
         return (Member)vClan.elementAt(indexRow);
     }
 
-    /// <summary>Create confirm.</summary>
-    /// <param name="menu">Menu.</param>
-    /// <param name="npc">Non-player character.</param>
-    public void createConfirm(string[] menu, Npc npc)
-    {
-        resetButton();
-        isLockKey = true;
-        left = new Command(menu[0], 130011, npc);
-        right = new Command(menu[1], 130012, npc);
-    }
-
     /// <summary>Return level experience.</summary>
     /// <param name="exp">Experience.</param>
     /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
@@ -1016,21 +1003,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
         {
             Out.println(ex.ToString() + " loi tai ham openUITrade");
         }
-    }
-
-    /// <summary>Compute test act.</summary>
-    /// <remarks>Locals: b: Buffer or intermediate output value.</remarks>
-    public bool testAct()
-    {
-        for (sbyte b = 2; b < 9; b = (sbyte)(b + 2))
-        {
-            if (GameCanvas.keyHold[b])
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /// <summary>Check exist friend.</summary>
@@ -1494,32 +1466,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
     }
 
     public static long thoigian;
-    /// <summary>Perform hut vp.</summary>
-    /// <remarks>Locals: i: Loop/collection index.</remarks>
-    public static void HutVP()
-    {
-        if (!HutVatPham)
-        {
-            return;
-        }
-
-        try
-        {
-            if (mSystem.currentTimeMillis() - thoigian > 1000)
-            {
-                for (int i = 0; i < vItemMap.size(); i++)
-                {
-                    ItemMap itemMap = (ItemMap)vItemMap.elementAt(i);
-                    Service.gI().pickItem(itemMap.itemMapID);
-                    thoigian = mSystem.currentTimeMillis();
-                }
-            }
-        }
-        catch (Exception)
-        {
-        }
-    }
-
     /// <summary>Perform tu danh nguoi.</summary>
     public static void TuDanhNguoi()
     {
@@ -1571,17 +1517,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
         }
     }
 
-    public static class CalendarHelper
-    {
-        /// <summary>Return current time in time zone.</summary>
-        public static DateTime GetCurrentTimeInTimeZone()
-        {
-            TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            DateTime currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZone);
-            return currentTime;
-        }
-    }
-
     /// <summary>Offline addition: row step of the auto panel in pixels (rows are drawn 30 px apart).</summary>
     private const int AutoRowStep = 30;
     /// <summary>Offline addition: number of rows paintUIAuto draws (keep in sync with its paintCheckBox calls).</summary>
@@ -1601,12 +1536,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
             first = row - visible + 1;
         first = System.Math.Min(first, System.Math.Max(0, AutoRowCount - visible)); // never past the last row
         scrMain.cmtoY = System.Math.Max(0, first * AutoRowStep);
-    }
-
-    /// <summary>Check whether opening user interface applies to the supplied state.</summary>
-    public bool isOpeningUI()
-    {
-        return false;
     }
 
     /// <summary>Check whether pc level small applies to the supplied state.</summary>
@@ -2423,18 +2352,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
         }
     }
 
-    /// <summary>Perform toimuonchet.</summary>
-    public void toimuonchet()
-    {
-        while (Char.getMyChar().cHP > 0)
-        {
-            MyVector myVector = new MyVector();
-            myVector.addElement(Char.getMyChar());
-            Service.gI().sendPlayerAttack(new MyVector(), myVector, -1);
-            Thread.Sleep(1000);
-        }
-    }
-
     /// <summary>Perform view member info.</summary>
     private void viewMemberInfo()
     {
@@ -2545,64 +2462,6 @@ public partial class GameScr : mScreen, IActionListener, IChatable
     private static long nextItemAutoPickup;
     public static int ItemAutoPickupRadius = 120;
     public static int ItemAutoPickupIntervalMs = 350;
-    /// <summary>Compute findnear me.</summary>
-    /// <param name="list">List.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index.</remarks>
-    public static int findnearMe(int[] list)
-    {
-        int num = 0;
-        int num2 = 0;
-        for (int i = 0; i < list.Length; i++)
-        {
-            if (i != num2 && num > list[i])
-            {
-                num = list[i];
-            }
-        }
-
-        return num;
-    }
-
-    /// <summary>Compute findlocat.</summary>
-    /// <param name="list">List.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index.</remarks>
-    public static int findlocat(int[] list)
-    {
-        int num = 0;
-        int num2 = 0;
-        for (int i = 0; i < list.Length; i++)
-        {
-            if (i != num2 && num > list[i])
-            {
-                num = list[i];
-                num2 = i;
-            }
-        }
-
-        return num2;
-    }
-
-    /// <summary>Return dot number.</summary>
-    /// <param name="m">Current message or map entry.</param>
-    /// <remarks>Locals: text: Text fragment assembled or read by this operation; num: Number of entries in the source collection; i: Loop/collection index; num2: Number of entries in the source collection.</remarks>
-    public static string getDotNumber(long m)
-    {
-        string text = string.Empty + m;
-        int num = text.Length / 3;
-        if (text.Length % 3 == 0)
-        {
-            num--;
-        }
-
-        for (int i = 0; i < num; i++)
-        {
-            int num2 = text.Length - (i + 1) * 3 - i;
-            text = text.Substring(0, num2) + "." + text.Substring(num2, text.Length);
-        }
-
-        return text;
-    }
-
     /// <summary>Return time count down.</summary>
     /// <param name="timeStart">Time start.</param>
     /// <param name="secondCount">Second count.</param>

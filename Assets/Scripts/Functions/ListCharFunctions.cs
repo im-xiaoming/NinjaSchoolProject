@@ -73,12 +73,6 @@ namespace Functions
         }
 
         // Token: 0x06000AC4 RID: 2756 RVA: 0x000AD6FC File Offset: 0x000AB8FC
-        /// <summary>Compute map nro.</summary>
-        public static bool MapNro()
-        {
-            return TileMap.mapID >= 85 && TileMap.mapID <= 91;
-        }
-
         // Token: 0x06000AC5 RID: 2757 RVA: 0x000AD728 File Offset: 0x000AB928
         /// <summary>Check character name.</summary>
         /// <param name="a">Client character being inspected or controlled.</param>

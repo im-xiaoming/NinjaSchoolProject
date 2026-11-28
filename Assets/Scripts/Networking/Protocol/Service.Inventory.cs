@@ -196,33 +196,6 @@ public partial class Service
         }
     }
 
-    /// <summary>Sell item2.</summary>
-    /// <param name="indexUI">Item slot in the selected legacy panel.</param>
-    /// <param name="quantity">Quantity.</param>
-    public void saleItem2(int indexUI, int quantity)
-    {
-        Message message = null;
-        try
-        {
-            message = new Message((sbyte)14);
-            message.writer().writeByte(indexUI);
-            if (quantity > 1)
-            {
-                message.writer().writeShort(quantity);
-            }
-
-            session.sendMessage(message);
-        }
-        catch (Exception ex)
-        {
-            Out.println(ex.Message + ex.StackTrace);
-        }
-        finally
-        {
-            message.cleanup();
-        }
-    }
-
     /// <summary>Buy item.</summary>
     /// <param name="typeUI">Legacy item-panel/shop category code.</param>
     /// <param name="indexUI">Item slot in the selected legacy panel.</param>

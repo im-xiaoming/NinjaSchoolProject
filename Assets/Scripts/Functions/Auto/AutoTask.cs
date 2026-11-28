@@ -158,11 +158,6 @@ namespace Functions.Auto
             return Char.getMyChar().ctaskId >= 20;
         }
 
-        /// <summary>Retain the check task compatibility hook without performing work.</summary>
-        public void checkTask()
-        {
-        }
-
         /// <summary>Perform auto10.</summary>
         /// <remarks>Locals: i: Loop/collection index; text: Entry selected from the source collection.</remarks>
         public void Auto10()
@@ -1469,29 +1464,6 @@ namespace Functions.Auto
             return null;
         }
 
-        /// <summary>Perform fix.</summary>
-        public void Fix()
-        {
-            if (TileMap.mapID != 22)
-            {
-                Go(22);
-            }
-            else if (ItemBodyItemID(194) == null)
-            {
-                if (ItemBagItemId(194) != null)
-                {
-                    Service.gI().useItem(ItemBagItemId(194).indexUI);
-                    Sleep();
-                }
-                else
-                {
-                    Pick(5, -1);
-                    Service.gI().itemBoxToBag(ItemBoxItemId(194).indexUI);
-                    Sleep();
-                }
-            }
-        }
-
         /// <summary>Buy the requested quantity of rice balls from the locked grocery listing.</summary>
         /// <param name="w">Number of rice balls to purchase.</param>
         /// <remarks>Locals: i: Loop/collection index.</remarks>
@@ -1601,25 +1573,6 @@ namespace Functions.Auto
                     Sleep(400);
                 }
             }
-        }
-
-        /// <summary>Perform luu toa do.</summary>
-        public void LuuToaDo()
-        {
-            if (TileMap.mapID != 27)
-            {
-                Go(27);
-                Sleep();
-            }
-
-            if (TileMap.mapID != 27)
-            {
-                TileMap.LockMap(2000);
-            }
-
-            Pick(5, 1);
-            Sleep();
-            saveTD = 27;
         }
 
         /// <summary>Compute identifier food.</summary>
@@ -2104,24 +2057,6 @@ namespace Functions.Auto
             return 0;
         }
 
-        /// <summary>Perform up skill task.</summary>
-        public void upSkillTask()
-        {
-            if (Char.getMyChar().sPoint > 0)
-            {
-                if (Char.getMyChar().nClass.classId == 6)
-                {
-                    Service.gI().upSkill(46, 1);
-                    Lock(1000);
-                }
-                else if (Char.getMyChar().nClass.classId == 3)
-                {
-                    Service.gI().upSkill(19, 1);
-                    Lock(1000);
-                }
-            }
-        }
-
         /// <summary>Restock missing quest food, reset the automation state and resume the task loop.</summary>
         public void a()
         {
@@ -2149,48 +2084,6 @@ namespace Functions.Auto
             {
                 Monitor.Wait(objSleep, milisSeconds);
             }
-        }
-
-        /// <summary>Check percent vu khi.</summary>
-        /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index.</remarks>
-        public bool CheckPercentVuKhi()
-        {
-            int num = 0;
-            for (int i = 0; i < Char.getMyChar().arrItemBag.Length; i++)
-            {
-                Item item = Char.getMyChar().arrItemBag[i];
-                if (item != null && item.template.type == 26)
-                {
-                    num += item.getPecentUpgradeVuKhi(0);
-                    if (num >= 80)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>Check percent clothes.</summary>
-        /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index.</remarks>
-        public bool CheckPercentClothes()
-        {
-            int num = 0;
-            for (int i = 0; i < Char.getMyChar().arrItemBag.Length; i++)
-            {
-                Item item = Char.getMyChar().arrItemBag[i];
-                if (item != null && item.template.type == 26)
-                {
-                    num += item.getPecentUpgradeDoLeft(0);
-                    if (num >= 80)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         /// <summary>Request the inventory panel and wait for its response using the existing UI lock.</summary>

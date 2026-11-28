@@ -46,16 +46,6 @@ public class Position
         this.y = y;
     }
 
-    /// <summary>Set position to.</summary>
-    /// <param name="xT">X t.</param>
-    /// <param name="yT">Y t.</param>
-    public void setPosTo(int xT, int yT)
-    {
-        xTo = (short)xT;
-        yTo = (short)yT;
-        distant = (short)Res.distance(x, y, xTo, yTo);
-    }
-
     /// <summary>Compute translate.</summary>
     public int translate()
     {

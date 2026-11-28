@@ -16,15 +16,6 @@ namespace NsoBridge
             return new Vector2((map.x - s.CameraX) * s.Zoom, (map.y - s.CameraY) * s.Zoom);
         }
 
-        /// <summary>Compute screen to map.</summary>
-        /// <param name="s">Source text or serialized input.</param>
-        /// <param name="screen">Screen.</param>
-        public static Vector2 ScreenToMap(NsoMapSnapshot s, Vector2 screen)
-        {
-            int zoom = Mathf.Max(1, s.Zoom);
-            return new Vector2(screen.x / zoom + s.CameraX, screen.y / zoom + s.CameraY);
-        }
-
         // World point for a game-texture pixel, at 'distance' in front of the camera. False when the inputs are unusable.
         /// <summary>Compute screen to world.</summary>
         /// <param name="cam">Cam.</param>
@@ -42,23 +33,6 @@ namespace NsoBridge
             float px = r.x + screen.x * r.width / s.ScreenWidth;
             float py = r.y + r.height - screen.y * r.height / s.ScreenHeight; // texture Y down, camera Y up
             world = cam.ScreenToWorldPoint(new Vector3(px, py, distance));
-            return true;
-        }
-
-        /// <summary>Compute world to screen.</summary>
-        /// <param name="cam">Cam.</param>
-        /// <param name="s">Source text or serialized input.</param>
-        /// <param name="world">Authoritative game world.</param>
-        /// <param name="screen">Screen.</param>
-        /// <remarks>Locals: r: Rectangle used by this layout/drawing calculation; p: Current player/point or request payload.</remarks>
-        public static bool WorldToScreen(Camera cam, NsoMapSnapshot s, Vector3 world, out Vector2 screen)
-        {
-            screen = Vector2.zero;
-            if (cam == null || s.ScreenWidth <= 0 || s.ScreenHeight <= 0)
-                return false;
-            Rect r = cam.pixelRect;
-            Vector3 p = cam.WorldToScreenPoint(world);
-            screen = new Vector2((p.x - r.x) * s.ScreenWidth / r.width, (r.y + r.height - p.y) * s.ScreenHeight / r.height);
             return true;
         }
 

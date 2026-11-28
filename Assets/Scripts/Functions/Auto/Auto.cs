@@ -587,12 +587,6 @@ namespace Functions.Auto
             }
         }
 
-        /// <summary>Check character.</summary>
-        protected static bool checkChar()
-        {
-            return Char.getMyChar().cHP <= 0 || Char.getMyChar().statusMe == 14 || Char.getMyChar().statusMe == 5;
-        }
-
         /// <summary>Apply this component&#x27;s per-frame update.</summary>
         public void Update()
         {

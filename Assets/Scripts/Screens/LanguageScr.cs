@@ -3,6 +3,21 @@ public class LanguageScr : mScreen, IActionListener
     private int popupW, popupH, popupX, popupY;
     private int indexRow;
     private mScreen returnScreen;
+    // read by the Canvas view (LanguageView), which draws this screen's popup and buttons
+    public int PopupX { get { return popupX; } }
+    public int PopupY { get { return popupY; } }
+    public int PopupW { get { return popupW; } }
+    public int PopupH { get { return popupH; } }
+    public int IndexRow { get { return indexRow; } }
+    public string Title { get { return mResources.languageID == mResources.Lang_EN ? "Language" : "Ngôn ngữ"; } }
+
+    /// <summary>A row was clicked in the Canvas view: select it and confirm, as a tap on the row did.</summary>
+    /// <param name="row">0 = Tiếng Việt, 1 = English.</param>
+    public void ClickRow(int row)
+    {
+        indexRow = row;
+        perform(1000, null);
+    }
     /// <summary>Make this screen active and apply its existing entry/reset behavior.</summary>
     public override void switchToMe()
     {
@@ -36,37 +51,12 @@ public class LanguageScr : mScreen, IActionListener
 
     /// <summary>Draw this object&#x27;s current state through the legacy graphics wrapper.</summary>
     /// <param name="g">Legacy drawing context.</param>
-    /// <remarks>Locals: en: En; y: Vertical coordinate in the caller&#x27;s coordinate space; i: Loop/collection index.</remarks>
+    /// <remarks>Only the background is drawn here; the popup, its rows and the buttons are the Canvas view LanguageView.</remarks>
     public override void paint(mGraphics g)
     {
-        bool en = mResources.languageID == mResources.Lang_EN;
-        string title = en ? "Language" : "Ngôn ngữ";
         g.setColor(0);
         g.fillRect(0, 0, GameCanvas.w, GameCanvas.h);
         GameCanvas.paintBGGameScr(g);
-        GameCanvas.paintz.paintFrame(popupX, popupY, popupW, popupH, g);
-        g.setColor(Paint.COLORDARK);
-        g.fillRoundRect(GameCanvas.hw - mFont.tahoma_8b.getWidth(title) / 2 - 12, popupY + 7, mFont.tahoma_8b.getWidth(title) + 22, 24, 6, 6);
-        g.setColor(Paint.COLORLIGHT);
-        g.drawRoundRect(GameCanvas.hw - mFont.tahoma_8b.getWidth(title) / 2 - 12, popupY + 7, mFont.tahoma_8b.getWidth(title) + 22, 24, 6, 6);
-        mFont.tahoma_8b.drawString(g, title, GameCanvas.hw, popupY + 10, 2);
-        string[] labels =
-        {
-            "Tiếng Việt",
-            "English"
-        };
-        int y = popupY + 45;
-        for (int i = 0; i < labels.Length; i++)
-        {
-            g.setColor(i == indexRow ? Paint.COLORLIGHT : Paint.COLORDARK);
-            g.fillRect(popupX + 15, y + i * 36, popupW - 30, 30);
-            g.setColor(i == indexRow ? 11053224 : 5720393);
-            g.drawRect(popupX + 15, y + i * 36, popupW - 30, 30);
-            mFont.tahoma_7b_white.drawString(g, labels[i], GameCanvas.hw, y + i * 36 + 6, 2);
-        }
-
-        base.paint(g);
-        GameCanvas.paintz.paintCmdBar(g, left, center, right);
     }
 
     /// <summary>Save language identifier.</summary>
@@ -94,14 +84,6 @@ public class LanguageScr : mScreen, IActionListener
     /// <summary>Translate the current client key/pointer state into screen actions.</summary>
     public override void updateKey()
     {
-        if (GameCanvas.isPointerJustRelease && GameCanvas.isPointerHoldIn(popupX + 10, popupY + 40, popupW - 20, 80))
-        {
-            if (GameCanvas.isPointerClick)
-                indexRow = (GameCanvas.py - (popupY + 40)) / 36;
-            if (indexRow >= 0 && indexRow < 2)
-                perform(1000, null);
-        }
-
         if (GameCanvas.keyPressedz[Key.NUM2] || GameCanvas.keyPressedz[Key.NUM8] || GameCanvas.keyPressedz[24] || GameCanvas.keyPressedz[25])
         {
             indexRow = indexRow == 0 ? 1 : 0;

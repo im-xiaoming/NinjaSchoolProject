@@ -39,6 +39,7 @@ public partial class GameScr
     public override void paint(mGraphics g)
     {
         GameCanvas.debug("PA1", 1);
+        DrawRecorder.Section = "world";
         if (Char.ischangingMap)
         {
             g.setColor(0);
@@ -205,6 +206,7 @@ public partial class GameScr
             return;
         }
 
+        DrawRecorder.Section = "hud";
         paintInfoBar(g);
         MainFuctions.Paint(g);
         //mFont.tahoma_7_white.drawString(g, "Time: "+ DateTime.Now.ToString(),GameCanvas.w / 2 , 0 , 3,mFont.tahoma_7_grey);
@@ -234,6 +236,7 @@ public partial class GameScr
                 ((Effect2)Effect2.vEffect2Outside.elementAt(i))?.paint(g);
             }
 
+            DrawRecorder.Section = "panel";
             g.translate(-g.getTranslateX(), -g.getTranslateY());
             g.setClip(0, -200, GameCanvas.w, 200 + GameCanvas.h);
             if (isPaintInfoMe)
@@ -387,6 +390,7 @@ public partial class GameScr
         ChatTextField.gI().paint(g);
         resetTranslate(g);
         InfoMe.paint(g);
+        DrawRecorder.Section = "";
     }
 
     /// <summary>Draw user interface auto in the current graphics context.</summary>
@@ -1328,20 +1332,6 @@ public partial class GameScr
 
                 mFont.numberb_white.drawString(g, num + string.Empty, xSkill + xS[i] + 11, yS[i] - mFont.numberb_white.getHeight() - 2, 0);
             }
-        }
-    }
-
-    /// <summary>Draw open in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    public void paintOpen(mGraphics g)
-    {
-        if (isstarOpen)
-        {
-            g.translate(-g.getTranslateX(), -g.getTranslateY());
-            g.fillRect(0, 0, GameCanvas.w, moveUp);
-            g.setColor(10275899);
-            g.fillRect(0, moveUp - 1, GameCanvas.w, 1);
-            g.fillRect(0, moveDow + 1, GameCanvas.w, 1);
         }
     }
 
@@ -7116,15 +7106,6 @@ public partial class GameScr
         left = null;
         right = null;
         resetButton();
-    }
-
-    /// <summary>Perform scroll down lucky draw.</summary>
-    public void scrollDownLucky_Draw()
-    {
-        indexRowMax = texts.size();
-        scrMain.setStyle(indexRowMax, 12, popupX, ystart + 12, popupW, popupH - 42 - ((textsTitle != null) ? 10 : 0), true, 1);
-        indexRow = texts.size() - 1;
-        scrMain.moveTo(indexRow * scrMain.ITEM_SIZE);
     }
 
     /// <summary>Update lucky draw.</summary>

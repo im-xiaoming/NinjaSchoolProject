@@ -158,36 +158,6 @@ public partial class Char
         }
     }
 
-    /// <summary>Set auto jump.</summary>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public void setAutoJump()
-    {
-        int num = ((MovePoint)vMovePoints.firstElement()).xEnd - cx;
-        if (canJumpHigh)
-        {
-            cvyJump = -10;
-        }
-        else
-        {
-            cvyJump = -8;
-        }
-
-        cp1 = 0;
-        cdir = ((num > 0) ? 1 : (-1));
-        if (num <= 6)
-        {
-            cvx = 0;
-        }
-        else if (num <= 20)
-        {
-            cvx = 3;
-        }
-        else
-        {
-            cvx = 5;
-        }
-    }
-
     // Offline input deviation: original client updateCharRun decays cvx by one per tick.
     // Only a released manual ground control requests this; auto paths and airborne motion keep their rules.
     /// <summary>Stop ground movement on release.</summary>
@@ -370,23 +340,6 @@ public partial class Char
         {
             stop();
         }
-    }
-
-    /// <summary>Check in range jump.</summary>
-    /// <param name="x1">X1.</param>
-    /// <param name="xw1">Xw1.</param>
-    /// <param name="xmob">Xmob.</param>
-    /// <param name="y1">Y1.</param>
-    /// <param name="yh1">Yh1.</param>
-    /// <param name="ymob">Ymob.</param>
-    public bool checkInRangeJump(int x1, int xw1, int xmob, int y1, int yh1, int ymob)
-    {
-        if (xmob > xw1 || xmob < x1 || ymob > y1 || ymob < yh1)
-        {
-            return false;
-        }
-
-        return true;
     }
 
     /// <summary>Set character fall from jump.</summary>
@@ -636,23 +589,6 @@ public partial class Char
         Service.gI().charMove(cxSend, cySend);
         @char.cx = (@char.cxSend = cxSend);
         @char.cy = (@char.cySend = cySend);
-        return true;
-    }
-
-    /// <summary>Compute move2.</summary>
-    /// <param name="cxSend">Last reported horizontal position.</param>
-    /// <param name="cySend">Last reported vertical position.</param>
-    public bool Move2(int cxSend, int cySend)
-    {
-        Char @char = getMyChar();
-        @char.cx = cxSend;
-        @char.cy = cxSend;
-        if (cxSend == @char.cx && cySend == @char.cy)
-        {
-            return false;
-        }
-
-        sendMove();
         return true;
     }
 

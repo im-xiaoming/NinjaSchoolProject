@@ -71,14 +71,6 @@ public partial class GameScr
         }
     }
 
-    /// <summary>Set character jump att.</summary>
-    public void setCharJumpAtt()
-    {
-        Char.getMyChar().cvy = ((!Char.getMyChar().canJumpHigh) ? (-8) : (-10));
-        Char.getMyChar().statusMe = 3;
-        Char.getMyChar().cp1 = 0;
-    }
-
     /// <summary>Set character jump.</summary>
     /// <param name="cvx">Cvx.</param>
     public void setCharJump(int cvx)
@@ -87,17 +79,6 @@ public partial class GameScr
         Char.getMyChar().cvx = cvx;
         Char.getMyChar().statusMe = 3;
         Char.getMyChar().cp1 = 0;
-    }
-
-    /// <summary>Lock zone.</summary>
-    /// <param name="milisSeconds">Milis seconds (seconds).</param>
-    public static void LockZone(int milisSeconds = 2000)
-    {
-        isLockKhu = true;
-        lock (objKhu)
-        {
-            Monitor.Wait(objKhu, milisSeconds);
-        }
     }
 
     /// <summary>Find character in map.</summary>

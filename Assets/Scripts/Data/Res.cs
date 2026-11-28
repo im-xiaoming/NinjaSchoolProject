@@ -171,29 +171,6 @@ public class Res
         return COS[360 - a];
     }
 
-    /// <summary>Compute tan.</summary>
-    /// <param name="a">First operand or current actor.</param>
-    public static int tan(int a)
-    {
-        a = fixangle(a);
-        if (a >= 0 && a < 90)
-        {
-            return TAN[a];
-        }
-
-        if (a >= 90 && a < 180)
-        {
-            return -TAN[180 - a];
-        }
-
-        if (a >= 180 && a < 270)
-        {
-            return TAN[a - 180];
-        }
-
-        return -TAN[360 - a];
-    }
-
     /// <summary>Compute atan.</summary>
     /// <param name="a">First operand or current actor.</param>
     /// <remarks>Locals: i: Loop/collection index.</remarks>
@@ -283,21 +260,6 @@ public class Res
     public static int random(int a, int b)
     {
         return a + r.nextInt(b - a);
-    }
-
-    /// <summary>Compute s2tick.</summary>
-    /// <param name="currentTimeMillis">Current time millis.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public static int s2tick(int currentTimeMillis)
-    {
-        int num = 0;
-        num = currentTimeMillis * 16 / 1000;
-        if (currentTimeMillis * 16 % 1000 >= 5)
-        {
-            num++;
-        }
-
-        return num;
     }
 
     /// <summary>Compute distance.</summary>
@@ -506,11 +468,4 @@ public class Res
         return result;
     }
 
-    /// <summary>Read file.</summary>
-    /// <param name="path">Path.</param>
-    public static DataInputStream readFile(string path)
-    {
-        DataInputStream dataInputStream = null;
-        return DataInputStream.getResourceAsStream(Main.res + path);
-    }
 }

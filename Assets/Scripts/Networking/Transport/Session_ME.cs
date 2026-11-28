@@ -266,16 +266,6 @@ public class Session_ME : ISession
         return connected;
     }
 
-    /// <summary>Lock auto.</summary>
-    /// <param name="mili">Mili.</param>
-    public static void LockAuto(int mili = 10000)
-    {
-        lock (lockAuto)
-        {
-            Monitor.Wait(lockAuto, mili);
-        }
-    }
-
     /// <summary>Perform huy lock.</summary>
     public static void huyLock()
     {

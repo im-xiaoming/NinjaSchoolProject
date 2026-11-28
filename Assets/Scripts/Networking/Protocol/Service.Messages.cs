@@ -1381,38 +1381,6 @@ public partial class Service
         }
     }
 
-    /// <summary>Send the info kiemduyet request through the existing client protocol.</summary>
-    /// <param name="name">Name.</param>
-    /// <param name="ngaysinh">Ngaysinh.</param>
-    /// <param name="diachi">Diachi.</param>
-    /// <param name="cmnd">Cmnd.</param>
-    /// <param name="ngaycap">Ngaycap.</param>
-    /// <param name="noicap">Noicap.</param>
-    /// <param name="email">Email.</param>
-    public void info_Kiemduyet(string name, string ngaysinh, string diachi, string cmnd, string ngaycap, string noicap, string email)
-    {
-        Message message = null;
-        try
-        {
-            message = new Message((sbyte)123);
-            message.writer().writeUTF(name);
-            message.writer().writeUTF(ngaysinh);
-            message.writer().writeUTF(diachi);
-            message.writer().writeUTF(cmnd);
-            message.writer().writeUTF(ngaycap);
-            message.writer().writeUTF(noicap);
-            message.writer().writeUTF(email);
-            session.sendMessage(message);
-        }
-        catch (Exception)
-        {
-        }
-        finally
-        {
-            message.cleanup();
-        }
-    }
-
     /// <summary>Send captcha through the existing client protocol.</summary>
     /// <param name="type">Type.</param>
     public void send_Captcha(sbyte type)

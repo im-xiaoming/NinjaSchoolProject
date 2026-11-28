@@ -306,54 +306,6 @@ public partial class Char
         }
     }
 
-    /// <summary>Perform auto pick item map.</summary>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index; num2: Horizontal position/difference used by this calculation; num3: Vertical position/difference used by this calculation.</remarks>
-    private void autoPickItemMap()
-    {
-        if (!me || cHP <= 0 || statusMe == 14 || statusMe == 5 || testCharId != -9999)
-        {
-            return;
-        }
-
-        int num = 70;
-        if (GameScr.isUseitemAuto)
-        {
-            num = 240;
-        }
-
-        if (!isAPickYen && !isAPickYHM && !isAPickYHMS)
-        {
-            return;
-        }
-
-        for (int i = 0; i < GameScr.vItemMap.size(); i++)
-        {
-            ItemMap itemMap = (ItemMap)GameScr.vItemMap.elementAt(i);
-            if (itemMap == null)
-            {
-                continue;
-            }
-
-            int num2 = Math.abs(getMyChar().cx - itemMap.x);
-            int num3 = Math.abs(getMyChar().cy - itemMap.y);
-            if (num2 <= num && num3 <= num)
-            {
-                if ((isAPickYen || isAPickYHM || isAPickYHMS) && itemMap.template.type == 19)
-                {
-                    Service.gI().pickItem(itemMap.itemMapID);
-                }
-                else if ((itemMap.template.type == 16 || itemMap.template.type == 17) && (isAPickYHM || isAPickYHMS))
-                {
-                    Service.gI().pickItem(itemMap.itemMapID);
-                }
-                else if (itemMap.template.id == 27 && isAPickYHMS)
-                {
-                    Service.gI().pickItem(itemMap.itemMapID);
-                }
-            }
-        }
-    }
-
     /// <summary>Perform item mon to bag.</summary>
     /// <param name="msg">Framed protocol message.</param>
     /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>

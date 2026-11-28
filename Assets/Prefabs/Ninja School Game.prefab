@@ -425,7 +425,7 @@ MonoBehaviour:
   _targetCamera: {fileID: 0}
   _shader: {fileID: 4800000, guid: 7d0b2d54ebb568242a0734a24260346e, type: 3}
   _distance: 10
-  _antiAliasing: 1
+  _antiAliasing: 0
   _fxaaShader: {fileID: 4800000, guid: 4ce5aa66d2bdaa64eac8130e3f594962, type: 3}
   _contrastThreshold: 0.0312
   _relativeThreshold: 0.063

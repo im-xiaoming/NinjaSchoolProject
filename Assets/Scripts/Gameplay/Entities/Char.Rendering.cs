@@ -751,28 +751,6 @@ public partial class Char
         }
     }
 
-    /// <summary>Draw leg in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    /// <param name="cx">Character horizontal position in map pixels.</param>
-    /// <param name="cy">Character vertical position in map pixels.</param>
-    /// <param name="f">Current field/value.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public void paintLeg(mGraphics g, int cx, int cy, int f)
-    {
-        DataSkillEff partEff = getPartEff(ID_LEG, false);
-        int num = 0;
-        if ((statusMe == 1 || statusMe == 6) && cf <= 1)
-        {
-            num = cf * f;
-        }
-
-        if (partEff != null)
-        {
-            partEff.paintBottomEff_new(g, cx, cy + num, (statusMe != 1 && statusMe != 6) ? (5 + FrameLeg * 30) : getFrameLeg(), (cdir != 1) ? 2 : 0);
-            partEff.paintTopEff_new(g, cx, cy + num, (statusMe != 1 && statusMe != 6) ? (5 + FrameLeg * 30) : getFrameLeg(), (cdir != 1) ? 2 : 0);
-        }
-    }
-
     /// <summary>Draw ppui bot in the current graphics context.</summary>
     /// <param name="g">Legacy drawing context.</param>
     /// <param name="cx">Character horizontal position in map pixels.</param>
@@ -809,35 +787,6 @@ public partial class Char
         }
 
         partEff.paintTopEff_new(g, cx, cy, getFramePP(f), 0);
-    }
-
-    /// <summary>Draw mat na user interface in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    /// <param name="cx">Character horizontal position in map pixels.</param>
-    /// <param name="cy">Character vertical position in map pixels.</param>
-    /// <param name="f">Current field/value.</param>
-    /// <remarks>Locals: num: Number of entries in the source collection.</remarks>
-    public void paintMatNaUI(mGraphics g, int cx, int cy, int f)
-    {
-        DataSkillEff partEff = getPartEff(ID_MAT_NA, false);
-        if (partEff == null)
-        {
-            return;
-        }
-
-        if (GameCanvas.gameTick % 6 == 0)
-        {
-            int num = partEff.listFrame.size() / 30;
-            if (num == 0)
-            {
-                num = 1;
-            }
-
-            fMatNaUI = (byte)((fMatNaUI + 1) % num);
-        }
-
-        partEff.paintTopEff_new(g, cx, cy, getFrameMatNaUI(f), 0);
-        partEff.paintBottomEff_new(g, cx, cy, getFrameMatNaUI(f), 0);
     }
 
     /// <summary>Draw weapon user interface top in the current graphics context.</summary>
@@ -981,16 +930,6 @@ public partial class Char
 
         partEff.paintBottomEff_new(g, cx, cy, getFrameBodyUI(f), 0);
         partEff.paintTopEff_new(g, cx, cy, getFrameBodyUI(f), 0);
-    }
-
-    /// <summary>Retain the paint mat na bot compatibility hook without performing work.</summary>
-    /// <param name="g">Retained for call compatibility; not read by this implementation.</param>
-    /// <param name="cx">Retained for call compatibility; not read by this implementation.</param>
-    /// <param name="cy">Retained for call compatibility; not read by this implementation.</param>
-    /// <param name="f">Retained for call compatibility; not read by this implementation.</param>
-    /// <param name="partMatNa">Retained for call compatibility; not read by this implementation.</param>
-    public void paintMatNaBot(mGraphics g, int cx, int cy, int f, DataSkillEff partMatNa)
-    {
     }
 
     /// <summary>Retain the paint mat na top compatibility hook without performing work.</summary>

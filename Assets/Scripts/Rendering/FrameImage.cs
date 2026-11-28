@@ -49,20 +49,6 @@ public class FrameImage
         }
     }
 
-    /// <summary>Draw region frame in the current graphics context.</summary>
-    /// <param name="idx">Index.</param>
-    /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="y">Vertical coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="trans">Trans.</param>
-    /// <param name="anchor">Anchor.</param>
-    /// <param name="g">Legacy drawing context.</param>
-    /// <param name="bulletID">Bullet identifier.</param>
-    /// <param name="n">Number of entries or iterations.</param>
-    public void drawRegionFrame(int idx, int x, int y, int trans, int anchor, mGraphics g, int bulletID, int n)
-    {
-        g.drawRegion(imgFrame, 0, (bulletID * n + idx) * imgFrame.getWidth(), imgFrame.getWidth(), imgFrame.getWidth(), trans, x, y, anchor);
-    }
-
     /// <summary>Draw frame in the current graphics context.</summary>
     /// <param name="idx">Index.</param>
     /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
@@ -102,10 +88,4 @@ public class FrameImage
         }
     }
 
-    /// <summary>Perform unload.</summary>
-    public void unload()
-    {
-        imgFrame = null;
-        pos = null;
-    }
 }

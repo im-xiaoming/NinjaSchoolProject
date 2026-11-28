@@ -358,35 +358,6 @@ public class DataSkillEff
         }
     }
 
-    /// <summary>Perform checkremove.</summary>
-    /// <remarks>Locals: text: Text fragment assembled or read by this operation; i: Loop/collection index; k: Entry selected from the source collection.</remarks>
-    public static void checkremove()
-    {
-        try
-        {
-            IDictionaryEnumerator enumerator = GameData.listbyteData.GetEnumerator();
-            MyVector myVector = new MyVector();
-            while (enumerator.MoveNext())
-            {
-                string text = enumerator.Key.ToString();
-                EffectData effectData = (EffectData)GameData.listbyteData.get(text);
-                if (mSystem.currentTimeMillis() / 1000 - effectData.timeremove > 60)
-                {
-                    myVector.addElement(text);
-                }
-            }
-
-            for (int i = 0; i < myVector.size(); i++)
-            {
-                string k = (string)myVector.elementAt(i);
-                GameData.listbyteData.remove(k);
-            }
-        }
-        catch (Exception)
-        {
-        }
-    }
-
     /// <summary>Compute vector2arr.</summary>
     /// <param name="vec">Vec.</param>
     /// <remarks>Locals: array: Working array for this operation; i: Loop/collection index.</remarks>
@@ -417,23 +388,6 @@ public class DataSkillEff
             default:
                 typeupdate = 2;
                 break;
-        }
-    }
-
-    /// <summary>Set infodata.</summary>
-    /// <param name="dinfo">Dinfo.</param>
-    public void setInfodata(EffectData dinfo)
-    {
-        if (dinfo != null && dinfo.isLoad)
-        {
-            listFrame = dinfo.listFrame;
-            smallImage = dinfo.smallImage;
-            fw = dinfo.fw;
-            fh = dinfo.fh;
-            sequence = dinfo.sequence;
-            indexSplash = dinfo.indexStartSkill;
-            frameChar = dinfo.frameChar;
-            isLoadData = dinfo.isLoad;
         }
     }
 
@@ -699,13 +653,6 @@ public class DataSkillEff
         }
     }
 
-    /// <summary>Set frame.</summary>
-    /// <param name="fr">Fr.</param>
-    public void setFrame(int fr)
-    {
-        Frame = (sbyte)fr;
-    }
-
     /// <summary>Set wait.</summary>
     /// <param name="iss">Iss.</param>
     private void setWait(bool iss)
@@ -722,32 +669,6 @@ public class DataSkillEff
         {
             wait = false;
         }
-    }
-
-    /// <summary>Update effect character die.</summary>
-    public void updateEffCharDie()
-    {
-        if (isLoadData)
-        {
-            if (f < sequence.Length)
-            {
-                f = (sbyte)(f + 1);
-            }
-
-            if (f > sequence.Length - 1)
-            {
-                f = (sbyte)(sequence.Length - 1);
-            }
-
-            Frame = sequence[f];
-        }
-    }
-
-    /// <summary>Set loop.</summary>
-    /// <param name="loop">Loop.</param>
-    public void setLoop(int loop)
-    {
-        this.loop = loop;
     }
 
     /// <summary>Advance this object&#x27;s state for the current client logic tick.</summary>
@@ -836,15 +757,4 @@ public class DataSkillEff
         return fh;
     }
 
-    /// <summary>Return x.</summary>
-    public int getX()
-    {
-        return x;
-    }
-
-    /// <summary>Return y.</summary>
-    public int getY()
-    {
-        return y;
-    }
 }

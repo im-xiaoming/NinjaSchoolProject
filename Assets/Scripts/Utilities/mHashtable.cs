@@ -11,13 +11,6 @@ public class mHashtable
         return h[k];
     }
 
-    /// <summary>Compute conskey.</summary>
-    /// <param name="key">Key.</param>
-    public object conskey(string key)
-    {
-        return h[key];
-    }
-
     /// <summary>Clear m hashtable.</summary>
     public void clear()
     {

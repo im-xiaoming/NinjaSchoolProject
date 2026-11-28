@@ -122,34 +122,6 @@ namespace NsoServer.Configuration
             return result;
         }
 
-        /// <summary>Apply static.</summary>
-        /// <param name="section">Section.</param>
-        /// <param name="type">Type.</param>
-        public static void ApplyStatic(string section, Type type)
-        {
-            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
-            {
-                if (field.IsLiteral || field.IsInitOnly || field.Name == "LlmApiKey")
-                    continue;
-                object value = field.GetValue(null);
-                if (overrides.TryGetValue(section, out var group) && group is Dictionary<string, object> fields && fields.TryGetValue(field.Name, out var replacement))
-                {
-                    try
-                    {
-                        value = ConvertValue(field.FieldType, replacement, value);
-                    }
-                    catch (Exception ex)
-                    {
-                        LastError = section + "." + field.Name + ": " + ex.Message;
-                    }
-                }
-
-                field.SetValue(null, value);
-                if (field.Name.StartsWith("Brain", StringComparison.Ordinal) || overrides.TryGetValue(section, out var configured) && configured is Dictionary<string, object> explicitFields && explicitFields.ContainsKey(field.Name))
-                    Register(section, field.Name, value);
-            }
-        }
-
         /// <summary>Compute JSON value.</summary>
         /// <param name="value">Value.</param>
         private static object JsonValue(object value)

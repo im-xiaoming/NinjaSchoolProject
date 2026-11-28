@@ -228,25 +228,4 @@ public class Command
         return false;
     }
 
-    /// <summary>Check whether position command applies to the supplied state.</summary>
-    public bool isPosCmd()
-    {
-        if (x > 0 && y > 0)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Update pointer.</summary>
-    public void updatePointer()
-    {
-        if (isPosCmd() && input())
-        {
-            performAction();
-            GameCanvas.isPointerDown = false;
-            isFocus = false;
-        }
-    }
 }

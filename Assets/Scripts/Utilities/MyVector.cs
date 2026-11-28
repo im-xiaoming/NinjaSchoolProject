@@ -81,13 +81,6 @@ public class MyVector
         }
     }
 
-    /// <summary>Compute index of.</summary>
-    /// <param name="o">Object being inspected or converted.</param>
-    public int indexOf(object o)
-    {
-        return a.IndexOf(o);
-    }
-
     /// <summary>Remove element at.</summary>
     /// <param name="index">Index.</param>
     public void removeElementAt(int index)

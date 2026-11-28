@@ -165,17 +165,6 @@ namespace Functions.Auto
             }).Start();
         }
 
-        /// <summary>Return png file.</summary>
-        /// <param name="image">Image.</param>
-        /// <param name="savePath">Save path.</param>
-        public static void GetPngFile(Image image, string savePath)
-        {
-            Texture2D texture = image.texture;
-            texture.SetPixel(texture.width - 30, texture.height - 30, Color.black);
-            texture.Apply();
-            File.WriteAllBytes(savePath + ".png", image.texture.EncodeToPNG());
-        }
-
         /// <summary>Perform fixed.</summary>
         public static void Fixed()
         {
@@ -183,65 +172,6 @@ namespace Functions.Auto
             if (Auto.isDie(Char.getMyChar()) && (TileMap.IsDangGoMap || TileMap.MapMod != TileMap.mapID))
             {
                 TileMap.HuyLockMap();
-            }
-        }
-
-        /// <summary>Return image.</summary>
-        /// <remarks>Locals: i: Loop/collection index; mob: Monster being inspected or targeted; num: Numeric intermediate used by this operation; the legacy name is retained; j: Nested loop/collection index; text: Text fragment assembled or read by this operation.</remarks>
-        public static void GetImage()
-        {
-            try
-            {
-                while (true)
-                {
-                    try
-                    {
-                        for (int i = 0; i < GameScr.vMob.size(); i++)
-                        {
-                            Mob mob = (Mob)GameScr.vMob.elementAt(i);
-                            if (mob == null)
-                            {
-                                continue;
-                            }
-
-                            MobTemplate mobTemplate = Mob.arrMobTemplate[mob.templateId];
-                            string path = string.Concat("Ảnh/x" + mGraphics.zoomLevel + "/map/", TileMap.mapID, "/mob/", mob.templateId);
-                            int num = dem;
-                            for (int j = 0; j < num; j++)
-                            {
-                                string text = string.Concat("Ảnh/x" + mGraphics.zoomLevel + "/map/", TileMap.mapID, "/mob/", mob.templateId, "/", j);
-                                Image image = mobTemplate.imgs[j];
-                                if (!Directory.Exists("Ảnh/x" + mGraphics.zoomLevel + "/map/" + TileMap.mapID))
-                                {
-                                    Directory.CreateDirectory("Ảnh/x" + mGraphics.zoomLevel + "/map/" + TileMap.mapID);
-                                }
-
-                                if (!Directory.Exists("Ảnh/x" + mGraphics.zoomLevel + "/map/" + TileMap.mapID + "/mob"))
-                                {
-                                    Directory.CreateDirectory("Ảnh/x" + mGraphics.zoomLevel + "/map/" + TileMap.mapID + "/mob");
-                                }
-
-                                if (!Directory.Exists(path))
-                                {
-                                    Directory.CreateDirectory(path);
-                                }
-
-                                if (image != null && !File.Exists(text))
-                                {
-                                    GetPngFile(image, text);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                    }
-
-                    Sleep(10);
-                }
-            }
-            catch (Exception)
-            {
             }
         }
 
@@ -288,149 +218,6 @@ namespace Functions.Auto
                 GameCanvas.endDlg();
                 GameCanvas.isLoading = false;
             }).Start();
-        }
-
-        /// <summary>Compute del item.</summary>
-        /// <param name="var0">Item instance being inspected or transferred.</param>
-        /// <remarks>Locals: var1: Intermediate value retained under its original legacy name; var5: Intermediate value retained under its original legacy name.</remarks>
-        public static bool delItem(Item var0)
-        {
-            if (T is AutoTask)
-            {
-                return false;
-            }
-            else if (var0 == null)
-            {
-                return false;
-            }
-            else if (var0.upgrade > 0)
-            {
-                var0.v = true;
-                return false;
-            }
-            else
-            {
-                for (int var1 = 0; var1 < arrItemDell.Length; ++var1)
-                {
-                    if (arrItemDell[var1] > 0 && var0.template.id == arrItemDell[var1])
-                    {
-                        return true;
-                    }
-                }
-
-                if (!var0.v && mSystem.currentTimeMillis() - var0.u >= 5000L)
-                {
-                    if (var0.template.type == 26 && var0.template.id < 11)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        if (var0.template.type < 10 || var0.template.type >= 29 && var0.template.type <= 32)
-                        {
-                            if (var0.template.type < 10)
-                            {
-                                if (var0.template.level < 50)
-                                {
-                                    return true;
-                                }
-
-                                return false;
-                            }
-
-                            if (!var0.s && mSystem.currentTimeMillis() - var0.t > 5000L)
-                            {
-                                var0.t = mSystem.currentTimeMillis();
-                                Service.gI().requestItemInfo(var0.typeUI, var0.indexUI);
-                                if (!var0.s)
-                                {
-                                    return false;
-                                }
-                            }
-
-                            if (var0.checkOption(85))
-                            {
-                                var0.v = true;
-                                return false;
-                            }
-
-                            if (var0.template.type >= 29 && var0.template.type <= 32)
-                            {
-                                if (var0.saleCoinLock != 0)
-                                {
-                                    var0.v = true;
-                                    return false;
-                                }
-
-                                return true;
-                            }
-
-                            if (var0.saleCoinLock >= 0)
-                            {
-                                return true;
-                            }
-
-                            bool var5;
-                            if (var0.checkOption(2))
-                            {
-                                var5 = true;
-                            }
-                            else
-                            {
-                                var5 = false;
-                            }
-
-                            if (!var5)
-                            {
-                                return true;
-                            }
-
-                            if (var0.template.type == 1)
-                            {
-                                if (var0.checkOption(0) && var0.checkOption(1))
-                                {
-                                    if (!var0.checkOption(8) && !var0.checkOption(9))
-                                    {
-                                        return true;
-                                    }
-
-                                    if (!var0.checkOption(10))
-                                    {
-                                        return true;
-                                    }
-
-                                    var0.v = true;
-                                    return false;
-                                }
-
-                                return true;
-                            }
-
-                            if (!var0.checkOption(6) || !var0.checkOption(7))
-                            {
-                                return true;
-                            }
-
-                            if (var0.countOptions(0) < 2)
-                            {
-                                return true;
-                            }
-
-                            if (var0.template.type == 8 && !var0.checkOption(16))
-                            {
-                                return true;
-                            }
-                        }
-
-                        var0.v = true;
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
         }
 
         /// <summary>Run handle.</summary>
@@ -685,12 +472,6 @@ namespace Functions.Auto
             return cy;
         }
 
-        /// <summary>Retain the paint g compatibility hook without performing work.</summary>
-        /// <param name="g">Retained for call compatibility; not read by this implementation.</param>
-        public static void PaintG(mGraphics g)
-        {
-        }
-
         /// <summary>Retain the update compatibility hook without performing work.</summary>
         public static void Update()
         {
@@ -710,25 +491,6 @@ namespace Functions.Auto
         {
             autoNVHN.update();
             S(autoNVHN);
-        }
-
-        /// <summary>Configure the quest automation for the selected school and level/task options.</summary>
-        /// <param name="phai">School.</param>
-        /// <param name="isLevel10">Is level10.</param>
-        /// <param name="LorETask">Lor e task.</param>
-        public static void AT(int phai, bool isLevel10, int LorETask = -1)
-        {
-            autoTask.update(phai, isLevel10, LorETask);
-            S(autoTask);
-        }
-
-        /// <summary>Perform bhsx.</summary>
-        /// <param name="isHsx">Is hsx.</param>
-        /// <param name="isBuff">Is buff.</param>
-        public static void BHSX(bool isHsx = true, bool isBuff = true)
-        {
-            buff.update(isHsx, isBuff);
-            S(buff);
         }
 
         /// <summary>Compute to boolean.</summary>

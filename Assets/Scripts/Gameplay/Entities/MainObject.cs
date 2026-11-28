@@ -109,12 +109,6 @@ public class MainObject
         }
     }
 
-    /// <summary>Retain the setid pp compatibility hook without performing work.</summary>
-    /// <param name="id">Retained for call compatibility; not read by this implementation.</param>
-    public void setidPP(short id)
-    {
-    }
-
     /// <summary>Retain the set thoi trang compatibility hook without performing work.</summary>
     /// <param name="arr">Retained for call compatibility; not read by this implementation.</param>
     public virtual void setThoiTrang(short[] arr)

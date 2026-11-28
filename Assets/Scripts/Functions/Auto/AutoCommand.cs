@@ -278,47 +278,6 @@ namespace Functions.Auto
             }
         }
 
-        /// <summary>Perform menuauto.</summary>
-        public static void Menuauto()
-        {
-            MyVector myVector = new MyVector();
-            if (Handle.T != null)
-            {
-                myVector.addElement(new Command("Tắt Auto", gI(), 4, 0));
-            }
-            else
-            {
-                if (TileMap.mapID == 1 || TileMap.mapID == 27 || TileMap.mapID == 72)
-                {
-                    myVector.addElement(new Command("Auto NV", gI(), 1100074, 0));
-                }
-
-                myVector.addElement(new Command("Tàn Sát", gI(), 1, 0));
-            }
-
-            //myVector.addElement(new Command("AUTO Tà thú", gI(), 54, 0));
-            myVector.addElement(new Command("NPC", gI(), 5, 0));
-            myVector.addElement(new Command(GameScr.HutVatPham ? "Hút VP" : " Nhặt Xa", gI(), 51, 0));
-            myVector.addElement(new Command(GameScr.nhanvat ? "[Tắt]\n" + "Nv trong map" : "[Bật]\n" + "Nv trong map", gI(), 62, 0));
-            myVector.addElement(new Command("Item Del", gI(), 57, 0));
-            //myVector.addElement(new Command("Item bán", gI(), 58, 0));
-            //myVector.addElement(new Command("Item Nhặt", gI(), 59, 0));
-            //myVector.addElement(new Command("Item Bỏ ra đất", gI(), 59, 0));
-            //myVector.addElement(new Command("Nhặt xa", gI(), 60, 0));
-            //myVector.addElement(new Command("Nhặt full", gI(), 61, 0));
-            myVector.addElement(new Command("HS Lượng: " + (GameScr.HoiSinhLuong ? "Bật" : "Tắt"), gI(), 9, 0));
-            //myVector.addElement(new Command("Chế độ đêm: " + (GameScr.CheDoDem ? "Bật" : "Tắt"), gI(), 52, 0));
-            myVector.addElement(new Command("Giữ Level: " + (GameScr.GiuLV ? "Bật" : "Tắt"), gI(), 8, 0));
-            myVector.addElement(new Command("SPGame: " + Time.timeScale, gI(), 10, 0));
-            myVector.addElement(new Command("SPNextMap: " + Handle.SpNextMap, gI(), 12, 0));
-            myVector.addElement(new Command("Hướng Dẫn", gI(), 53, 0));
-            //myVector.addElement(new Command("Đánh CTV", gI(), 61, 0));
-            //myVector.addElement(new Command("Đánh chuyển khu", gI(), 61, 0));
-            myVector.addElement(new Command("Tự động", gI(), 61, 0));
-            //myVector.addElement(new Command("Khác", gI(), 14, 0));
-            GameCanvas.menu.startAt(myVector, 11);
-        }
-
         /// <summary>Perform menu khac.</summary>
         protected void MenuKhac()
         {

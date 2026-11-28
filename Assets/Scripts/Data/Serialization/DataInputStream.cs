@@ -45,52 +45,6 @@ public class DataInputStream
 
     /// <summary>Return resource as stream.</summary>
     /// <param name="filename">Filename.</param>
-    /// <remarks>Locals: i: Loop/collection index; j: Nested loop/collection index.</remarks>
-    private static DataInputStream _getResourceAsStream(string filename)
-    {
-        if (status != 0)
-        {
-            for (int i = 0; i < 500; i++)
-            {
-                Thread.Sleep(5);
-                if (status == 0)
-                {
-                    break;
-                }
-            }
-
-            if (status != 0)
-            {
-                Debug.LogError("CANNOT GET INPUTSTREAM " + filename + " WHEN GETTING " + filenametemp);
-                return null;
-            }
-        }
-
-        istemp = null;
-        filenametemp = filename;
-        status = 2;
-        int j;
-        for (j = 0; j < 500; j++)
-        {
-            Thread.Sleep(5);
-            if (status == 0)
-            {
-                break;
-            }
-        }
-
-        if (j == 500)
-        {
-            Debug.LogError("TOO LONG FOR CREATE INPUTSTREAM " + filename);
-            status = 0;
-            return null;
-        }
-
-        return istemp;
-    }
-
-    /// <summary>Return resource as stream.</summary>
-    /// <param name="filename">Filename.</param>
     private static DataInputStream __getResourceAsStream(string filename)
     {
         return new DataInputStream(filename);

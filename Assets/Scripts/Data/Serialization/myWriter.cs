@@ -92,18 +92,6 @@ public class myWriter
         }
     }
 
-    /// <summary>Write unsigned short.</summary>
-    /// <param name="value">Value.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public void writeUnsignedShort(ushort value)
-    {
-        checkLenght(2);
-        for (int num = 1; num >= 0; num--)
-        {
-            writeSByteUncheck((sbyte)(value >> num * 8));
-        }
-    }
-
     /// <summary>Write int.</summary>
     /// <param name="value">Value.</param>
     /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
@@ -116,44 +104,11 @@ public class myWriter
         }
     }
 
-    /// <summary>Write long.</summary>
-    /// <param name="value">Value.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public void writeLong(long value)
-    {
-        checkLenght(8);
-        for (int num = 7; num >= 0; num--)
-        {
-            writeSByteUncheck((sbyte)(value >> num * 8));
-        }
-    }
-
     /// <summary>Write boolean.</summary>
     /// <param name="value">Value.</param>
     public void writeBoolean(bool value)
     {
         writeSByte((sbyte)(value ? 1 : 0));
-    }
-
-    /// <summary>Write bool.</summary>
-    /// <param name="value">Value.</param>
-    public void writeBool(bool value)
-    {
-        writeSByte((sbyte)(value ? 1 : 0));
-    }
-
-    /// <summary>Write string.</summary>
-    /// <param name="value">Value.</param>
-    /// <remarks>Locals: array: Working array for this operation; i: Loop/collection index.</remarks>
-    public void writeString(string value)
-    {
-        char[] array = value.ToCharArray();
-        writeShort((short)array.Length);
-        checkLenght(array.Length);
-        for (int i = 0; i < array.Length; i++)
-        {
-            writeSByteUncheck((sbyte)array[i]);
-        }
     }
 
     /// <summary>Write utf.</summary>
@@ -223,39 +178,6 @@ public class myWriter
             buffer = array;
             lenght += 1024 + ltemp;
         }
-    }
-
-    /// <summary>Convert string.</summary>
-    /// <param name="args">Args.</param>
-    private static void convertString(string[] args)
-    {
-        string path = args[0];
-        string path2 = args[1];
-        using (StreamReader input = new StreamReader(path, Encoding.Unicode))
-        {
-            using (StreamWriter output = new StreamWriter(path2, false, Encoding.UTF8))
-            {
-                CopyContents(input, output);
-            }
-        }
-    }
-
-    /// <summary>Copy contents.</summary>
-    /// <param name="input">Input.</param>
-    /// <param name="output">Output.</param>
-    /// <remarks>Locals: array: Entry selected from the source collection.</remarks>
-    private static void CopyContents(TextReader input, TextWriter output)
-    {
-        char[] array = new char[8192];
-        int count;
-        while ((count = input.Read(array, 0, array.Length)) != 0)
-        {
-            output.Write(array, 0, count);
-        }
-
-        output.Flush();
-        string message = output.ToString();
-        Debug.Log(message);
     }
 
     /// <summary>Copy signed protocol bytes into an unsigned byte array without changing their bit patterns.</summary>

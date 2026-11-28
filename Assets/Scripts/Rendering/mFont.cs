@@ -22,7 +22,11 @@ public class mFont
     private string strFont;
     private int[][] fImages;
     private BitmapFontAtlas bitmapAtlas;
-    private static readonly Dictionary<Font, BitmapFontAtlas> bitmapAtlases = new Dictionary<Font, BitmapFontAtlas>();
+    private static readonly Dictionary<string, BitmapFontAtlas> bitmapAtlases = new Dictionary<string, BitmapFontAtlas>(); // key: "font@size"
+    // pixel size, ascent and line height of NsoNormalFont0..5 per zoom level (x1..x4): the sizes of the bitmap fonts they replace
+    private static readonly int[,] TtfSize = { { 5, 9, 11, 12, 13, 13 }, { 14, 18, 20, 21, 22, 24 }, { 24, 30, 32, 30, 25, 35 }, { 28, 30, 32, 32, 35, 40 } };
+    private static readonly int[,] TtfAscent = { { 5, 9, 11, 12, 13, 12 }, { 14, 18, 20, 21, 22, 23 }, { 24, 31, 33, 31, 25, 34 }, { 29, 31, 33, 33, 36, 39 } };
+    private static readonly int[,] TtfLineHeight = { { 6, 10, 13, 14, 15, 16 }, { 17, 21, 24, 25, 26, 29 }, { 29, 36, 39, 36, 30, 43 }, { 34, 36, 39, 39, 42, 49 } };
     // gI: G i.
     public static mFont gI;
     public static mFont tahoma_7b_red;
@@ -71,63 +75,72 @@ public class mFont
     public int fstyle;
     public string st1 = "áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ";
     public string st2 = "\u00b8µ¶·¹\u00a8¾»¼½Æ©ÊÇÈÉËÐÌÎÏÑªÕÒÓÔÖÝ×ØÜÞãßáâä«èåæçé¬íêëìîóïñòô\u00adøõö÷ùýúûüþ®\u00b8µ¶·¹¡¾»¼½Æ¢ÊÇÈÉËÐÌÎÏÑ£ÕÒÓÔÖÝ×ØÜÞãßáâä¤èåæçé¥íêëìîóïñòô¦øõö÷ùýúûüþ§";
-    /// <summary>Initialize m font state and its supplied dependencies.</summary>
-    /// <param name="id">Identifier.</param>
-    /// <remarks>Locals: text: Text fragment assembled or read by this operation.</remarks>
-    public mFont(sbyte id)
+    /// <summary>Font (NsoNormalFont0..5) an mFont id draws with.</summary>
+    /// <param name="id">mFont identifier.</param>
+    private static int FontIndex(int id)
     {
-        string text = "normalFont2";
+        int index = 2;
         if (id > 0 && id < 8)
         {
-            text = "normalFont3";
+            index = 3;
         }
         else if (id >= 17 && id < 22)
         {
-            text = "normalFont0";
+            index = 0;
         }
         else if (id >= 8 && id <= 15)
         {
-            text = "normalFont1";
+            index = 1;
         }
         else if (id >= 22)
         {
-            text = "normalFont4";
+            index = 4;
         }
 
         if (id >= 28)
         {
-            text = "normalFont5";
+            index = 5;
         }
 
         if (id == 16)
         {
-            text = "normalFont3";
+            index = 3;
         }
 
+        return index;
+    }
+
+    /// <summary>Initialize m font state and its supplied dependencies.</summary>
+    /// <param name="id">Identifier.</param>
+    public mFont(sbyte id)
+    {
         this.id = id;
-        text = "res/x" + mGraphics.zoomLevel + "/" + text;
-        Font asset = (Font)Resources.Load(text);
+        // the game's fonts are the TTFs in Assets/Fonts/Resources/TTF, drawn at the pixel size of the zoom level's old bitmap font
+        int fontIndex = FontIndex(id);
+        int zoom = Mathf.Clamp(mGraphics.zoomLevel, 1, 4) - 1;
+        Font asset = Resources.Load<Font>("TTF/NsoNormalFont" + fontIndex);
         if (asset != null)
         {
-            fontPx = asset.fontSize > 0 ? asset.fontSize : 10 * mGraphics.zoomLevel;
-            if (!UseOriginalText && !bitmapAtlases.TryGetValue(asset, out bitmapAtlas))
+            fontPx = TtfSize[zoom, fontIndex];
+            string key = fontIndex + "@" + fontPx;
+            if (!bitmapAtlases.TryGetValue(key, out bitmapAtlas))
             {
-                bitmapAtlas = BitmapFontAtlas.Create(asset);
+                bitmapAtlas = BitmapFontAtlas.Create(asset, fontPx, TtfAscent[zoom, fontIndex], TtfLineHeight[zoom, fontIndex], OriginalAdvances(zoom + 1, fontIndex));
                 if (bitmapAtlas != null)
                 {
-                    bitmapAtlases[asset] = bitmapAtlas;
+                    bitmapAtlases[key] = bitmapAtlas;
                 }
             }
 
             myFont = asset;
-            height = (int)Mathf.Ceil(asset.lineHeight);
+            height = TtfLineHeight[zoom, fontIndex];
         }
         else
         {
             fontPx = 10 * mGraphics.zoomLevel;
         }
 
-        if (bitmapAtlas == null && !(UseOriginalText && asset != null))
+        if (bitmapAtlas == null)
         {
             fontStyle = FontStyle.Bold;
             myFont = Font.CreateDynamicFontFromOSFont(new string[] { "Tahoma", "Arial", "Segoe UI" }, fontPx);
@@ -138,8 +151,48 @@ public class mFont
         wO = bitmapAtlas != null ? bitmapAtlas.GetAdvance('o') : getWidthExactOf("o") * mGraphics.zoomLevel;
     }
 
-    // true = draw text the way the original client did (Unity GUIStyle with the game's font assets, original coordinates)
-    public static bool UseOriginalText = false; // tried: the original GUIStyle path draws faint text at wrong positions in Unity 6
+    private static Dictionary<string, Dictionary<int, int>> originalAdvances;
+
+    // letter advances of the game's original bitmap fonts at one zoom level (Assets/Fonts/Resources/TTF/NsoFontAdvances.txt):
+    // the TTFs round some advances differently at small sizes, these keep every text line its original width
+    private static Dictionary<int, int> OriginalAdvances(int zoom, int fontIndex)
+    {
+        if (originalAdvances == null)
+        {
+            originalAdvances = new Dictionary<string, Dictionary<int, int>>();
+            TextAsset file = Resources.Load<TextAsset>("TTF/NsoFontAdvances");
+            if (file != null)
+            {
+                string[] lines = file.text.Split('\n');
+                for (int i = 0; i + 1 < lines.Length; i++)
+                {
+                    string header = lines[i].Trim();
+                    if (header.Length == 0 || header[0] != 'x')
+                    {
+                        continue;
+                    }
+
+                    Dictionary<int, int> map = new Dictionary<int, int>();
+                    foreach (string pair in lines[i + 1].Trim().Split(' '))
+                    {
+                        int colon = pair.IndexOf(':');
+                        int code, advance;
+                        if (colon > 0 && int.TryParse(pair.Substring(0, colon), out code) && int.TryParse(pair.Substring(colon + 1), out advance))
+                        {
+                            map[code] = advance;
+                        }
+                    }
+
+                    originalAdvances[header] = map;
+                    i++;
+                }
+            }
+        }
+
+        Dictionary<int, int> result;
+        return originalAdvances.TryGetValue("x" + zoom + " " + fontIndex, out result) ? result : null;
+    }
+
     private struct BitmapGlyph
     {
         // x: Horizontal coordinate in the caller's coordinate space.
@@ -173,35 +226,58 @@ public class mFont
             this.lineHeight = lineHeight;
         }
 
-        /// <summary>Create bitmap font atlas.</summary>
-        /// <param name="font">Font.</param>
-        /// <remarks>Locals: i: Loop/collection index; uv: Rectangle used by this layout/drawing calculation; bl: Bl; tl: Tl; br: Br.</remarks>
-        public static BitmapFontAtlas Create(Font font)
+        /// <summary>Create the glyph atlas of a TTF font at one pixel size.</summary>
+        /// <param name="font">TTF font (dynamic).</param>
+        /// <param name="size">Pixel size.</param>
+        /// <param name="ascent">Baseline distance below the top of the line box.</param>
+        /// <param name="lineHeight">Line height.</param>
+        /// <param name="advances">Letter advances to use instead of the TTF's (char code to pixels), or null.</param>
+        public static BitmapFontAtlas Create(Font font, int size, int ascent, int lineHeight, Dictionary<int, int> advances)
         {
-            if (font == null || font.material == null)
+            if (font == null || font.material == null || size <= 0)
             {
                 return null;
             }
 
-            Texture2D texture = font.material.mainTexture as Texture2D;
-            CharacterInfo[] characters = font.characterInfo;
-            if (texture == null || characters == null || characters.Length == 0)
+            string chars = Charset;
+            font.RequestCharactersInTexture(chars, size, FontStyle.Normal);
+            Texture source = font.material.mainTexture;
+            if (source == null)
             {
                 return null;
             }
 
+            CharacterInfo[] characters = new CharacterInfo[chars.Length];
+            int count = 0;
+            for (int i = 0; i < chars.Length; i++)
+            {
+                CharacterInfo info;
+                if (font.GetCharacterInfo(chars[i], out info, size, FontStyle.Normal))
+                {
+                    characters[count++] = info;
+                }
+            }
+
+            System.Array.Resize(ref characters, count);
+            // the font texture is shared by every size and rebuilt whenever other text asks for new glyphs, which moves them:
+            // keep a copy, so these glyph rectangles stay valid
+            RenderTexture rt = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+            Graphics.Blit(source, rt);
+            RenderTexture previous = RenderTexture.active;
+            RenderTexture.active = rt;
+            Texture2D texture = new Texture2D(source.width, source.height, TextureFormat.RGBA32, false);
+            texture.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0);
+            texture.Apply();
+            texture.filterMode = FilterMode.Bilinear;
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(rt);
+            Material material = new Material(font.material);
+            material.mainTexture = texture;
             Image image = new Image();
             image.texture = texture;
             image.w = texture.width;
             image.h = texture.height;
-            // Unity's own text puts the baseline one font ascent below the top of the line box; the original coordinates assume that
-            int referenceMaxY = font.ascent > 0 ? font.ascent : int.MinValue;
-            if (referenceMaxY == int.MinValue)
-            {
-                for (int i = 0; i < characters.Length; i++)
-                    referenceMaxY = Mathf.Max(referenceMaxY, characters[i].maxY);
-            }
-
+            int referenceMaxY = ascent; // Unity's own text puts the baseline one font ascent below the top of the line box
             Dictionary<int, BitmapGlyph> glyphs = new Dictionary<int, BitmapGlyph>(characters.Length);
             for (int i = 0; i < characters.Length; i++)
             {
@@ -213,11 +289,11 @@ public class mFont
                     y = texture.height - Mathf.RoundToInt(uv.y * texture.height),
                     width = Mathf.RoundToInt(Mathf.Abs(uv.width) * texture.width),
                     height = Mathf.RoundToInt(Mathf.Abs(uv.height) * texture.height),
-                    advance = character.advance,
+                    advance = advances != null && advances.ContainsKey(character.index) ? advances[character.index] : character.advance,
                     offX = character.minX,
                     offY = referenceMaxY - character.maxY
                 };
-                // Unity packs some legacy-font glyphs turned 90 degrees: the glyph's top edge then runs along +u instead of -v.
+                // Unity can pack a glyph turned 90 degrees: the glyph's top edge then runs along +u instead of -v.
                 Vector2 bl = character.uvBottomLeft, tl = character.uvTopLeft, br = character.uvBottomRight;
                 if (Mathf.Abs(tl.x - bl.x) > Mathf.Abs(tl.y - bl.y) && tl.x > bl.x && br.y < bl.y)
                 {
@@ -236,8 +312,11 @@ public class mFont
                 }
             }
 
-            return glyphs.Count == 0 ? null : new BitmapFontAtlas(image, font.material, glyphs, Mathf.Max(1, Mathf.RoundToInt(font.lineHeight)));
+            return glyphs.Count == 0 ? null : new BitmapFontAtlas(image, material, glyphs, Mathf.Max(1, lineHeight));
         }
+
+        // the 247 characters of the game's fonts (ASCII, the Vietnamese letters and a few symbols); the TTFs hold exactly these
+        private const string Charset = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u00A8\u00A9\u00AE\u00B4\u00B6\u00BC\u00BD\u00BE\u00C0\u00C1\u00C2\u00C3\u00C8\u00C9\u00CA\u00CC\u00CD\u00D0\u00D2\u00D3\u00D4\u00D5\u00D9\u00DA\u00DD\u00E0\u00E1\u00E2\u00E3\u00E8\u00E9\u00EA\u00EC\u00ED\u00F2\u00F3\u00F4\u00F5\u00F7\u00F9\u00FA\u00FD\u0102\u0103\u010C\u010D\u0110\u0111\u0128\u0129\u0168\u0169\u01A0\u01A1\u01AF\u01B0\u1EA0\u1EA1\u1EA2\u1EA3\u1EA4\u1EA5\u1EA6\u1EA7\u1EA8\u1EA9\u1EAA\u1EAB\u1EAC\u1EAD\u1EAE\u1EAF\u1EB0\u1EB1\u1EB2\u1EB3\u1EB4\u1EB5\u1EB6\u1EB7\u1EB8\u1EB9\u1EBA\u1EBB\u1EBC\u1EBD\u1EBE\u1EBF\u1EC0\u1EC1\u1EC2\u1EC3\u1EC4\u1EC5\u1EC6\u1EC7\u1EC8\u1EC9\u1ECA\u1ECB\u1ECC\u1ECD\u1ECE\u1ECF\u1ED0\u1ED1\u1ED2\u1ED3\u1ED4\u1ED5\u1ED6\u1ED7\u1ED8\u1ED9\u1EDA\u1EDB\u1EDC\u1EDD\u1EDE\u1EDF\u1EE0\u1EE1\u1EE2\u1EE3\u1EE4\u1EE5\u1EE6\u1EE7\u1EE8\u1EE9\u1EEA\u1EEB\u1EEC\u1EED\u1EEE\u1EEF\u1EF0\u1EF1\u1EF2\u1EF3\u1EF4\u1EF5\u1EF6\u1EF7\u1EF8\u1EF9\u2010\u2018\u2019\u201C\u201D\u2026";
 
         /// <summary>Attempt get.</summary>
         /// <param name="value">Client character being inspected or controlled.</param>
@@ -664,135 +743,6 @@ public class mFont
         return myVector;
     }
 
-    /// <summary>Split first.</summary>
-    /// <param name="str">Text.</param>
-    /// <remarks>Locals: text: Text fragment assembled or read by this operation; flag: Branch/result flag for the current operation; i: Loop/collection index; text2: Text fragment assembled or read by this operation.</remarks>
-    public string splitFirst(string str)
-    {
-        string text = string.Empty;
-        bool flag = false;
-        for (int i = 0; i < str.Length; i++)
-        {
-            if (!flag)
-            {
-                string text2 = str.Substring(i);
-                text = ((!compare(text2, " ")) ? (text + text2) : (text + str[i] + "-"));
-                flag = true;
-            }
-            else if (str[i] == ' ')
-            {
-                flag = false;
-            }
-        }
-
-        return text;
-    }
-
-    /// <summary>Split text in line.</summary>
-    /// <param name="src">Source.</param>
-    /// <param name="lineWidth">Line width.</param>
-    /// <remarks>Locals: array: Number of entries in the source collection; i: Loop/collection index.</remarks>
-    public string[] splitStrInLine(string src, int lineWidth)
-    {
-        ArrayList arrayList = splitStrInLineA(src, lineWidth);
-        string[] array = new string[arrayList.Count];
-        for (int i = 0; i < arrayList.Count; i++)
-        {
-            array[i] = (string)arrayList[i];
-        }
-
-        return array;
-    }
-
-    /// <summary>Split text in line a.</summary>
-    /// <param name="src">Source.</param>
-    /// <param name="lineWidth">Line width.</param>
-    /// <remarks>Locals: i: Loop/collection index; num: Numeric intermediate used by this operation; the legacy name is retained; text: Text fragment assembled or read by this operation; num2: Numeric intermediate used by this operation; the legacy name is retained; text2: Text fragment assembled or read by this operation.</remarks>
-    public ArrayList splitStrInLineA(string src, int lineWidth)
-    {
-        ArrayList arrayList = new ArrayList();
-        int i = 0;
-        int num = 0;
-        int length = src.Length;
-        if (length < 5)
-        {
-            arrayList.Add(src);
-            return arrayList;
-        }
-
-        string text = string.Empty;
-        try
-        {
-            while (true)
-            {
-                if (getWidthNotExactOf(text) < lineWidth)
-                {
-                    text += src[num];
-                    num++;
-                    if (src[num] != '\n')
-                    {
-                        if (num < length - 1)
-                        {
-                            continue;
-                        }
-
-                        num = length - 1;
-                    }
-                }
-
-                if (num != length - 1 && src[num + 1] != ' ')
-                {
-                    int num2 = num;
-                    while (src[num + 1] != '\n' && (src[num + 1] != ' ' || src[num] == ' ') && num != i)
-                    {
-                        num--;
-                    }
-
-                    if (num == i)
-                    {
-                        num = num2;
-                    }
-                }
-
-                string text2 = src.Substring(i, num + 1 - i);
-                if (text2[0] == '\n')
-                {
-                    text2 = text2.Substring(1, text2.Length - 1);
-                }
-
-                if (text2[text2.Length - 1] == '\n')
-                {
-                    text2 = text2.Substring(0, text2.Length - 1);
-                }
-
-                arrayList.Add(text2);
-                if (num == length - 1)
-                {
-                    break;
-                }
-
-                for (i = num + 1; i != length - 1 && src[i] == ' '; i++)
-                {
-                }
-
-                if (i == length - 1)
-                {
-                    break;
-                }
-
-                num = i;
-                text = string.Empty;
-            }
-        }
-        catch (Exception ex)
-        {
-            Out.LogWarning("EXCEPTION WHEN REAL SPLIT " + src + "\nend=" + num + "\n" + ex.Message + "\n" + ex.StackTrace);
-            arrayList.Add(src);
-        }
-
-        return arrayList;
-    }
-
     /// <summary>Split font array.</summary>
     /// <param name="src">Source.</param>
     /// <param name="lineWidth">Line width.</param>
@@ -807,23 +757,6 @@ public class mFont
         }
 
         return array;
-    }
-
-    /// <summary>Compute compare.</summary>
-    /// <param name="strSource">Text source.</param>
-    /// <param name="str">Text.</param>
-    /// <remarks>Locals: i: Loop/collection index.</remarks>
-    public bool compare(string strSource, string str)
-    {
-        for (int i = 0; i < strSource.Length; i++)
-        {
-            if ((string.Empty + strSource[i]).Equals(str))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /// <summary>Return width.</summary>
@@ -934,6 +867,29 @@ public class mFont
     /// <param name="align">Align.</param>
     /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained; gc: Gc.</remarks>
     public void _drawString(mGraphics g, string st, int x0, int y0, int align)
+    {
+        if (DrawRecorder.Armed)
+        {
+            DrawRecorder.TextDepth++;
+            try
+            {
+                float gx = x0 + g.getTranslateX(), gy = y0 + g.getTranslateY();
+                if (g.RecorderVisible(gx, gy + 2))
+                    DrawRecorder.Text(st, FontIndex(id), color1, gx, gy, align);
+                _drawStringCore(g, st, x0, y0, align);
+            }
+            finally
+            {
+                DrawRecorder.TextDepth--;
+            }
+
+            return;
+        }
+
+        _drawStringCore(g, st, x0, y0, align);
+    }
+
+    private void _drawStringCore(mGraphics g, string st, int x0, int y0, int align)
     {
         if (bitmapAtlas != null)
         {
@@ -1174,13 +1130,4 @@ public class mFont
         return array;
     }
 
-    /// <summary>Retain the reload image compatibility hook without performing work.</summary>
-    public void reloadImage()
-    {
-    }
-
-    /// <summary>Retain the free image compatibility hook without performing work.</summary>
-    public void freeImage()
-    {
-    }
 }

@@ -8,6 +8,9 @@ public class MsgDlg : Dialog
     private int padLeft;
     public bool isPaintBlackBg;
     public bool isIpad;
+    // read by the Canvas view (MsgDlgView)
+    public int Height { get { return h; } }
+    public int PadLeft { get { return padLeft; } }
     /// <summary>Initialize message dlg state and its supplied dependencies.</summary>
     public MsgDlg()
     {
@@ -101,38 +104,9 @@ public class MsgDlg : Dialog
 
     /// <summary>Draw this object&#x27;s current state through the legacy graphics wrapper.</summary>
     /// <param name="g">Legacy drawing context.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Number of entries in the source collection; num3: Numeric intermediate used by this operation; the legacy name is retained; num4: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
+    /// <remarks>The message box, its wait spinner and its buttons are the Canvas view MsgDlgView.</remarks>
     public override void paint(mGraphics g)
     {
-        if (isIpad)
-        {
-            g.setColor(0);
-            g.fillRect(0, 0, GameCanvas.w, GameCanvas.h);
-            GameCanvas.paintShukiren(GameCanvas.hw, GameCanvas.hh, g, false);
-            mFont.tahoma_7b_yellow.drawString(g, mResources.PLEASEWAIT, GameCanvas.hw, GameCanvas.hh + mFont.tahoma_7b_yellow.getHeight(), 2);
-        }
-        else
-        {
-            int num = GameCanvas.h - h - 38;
-            GameCanvas.paintz.paintFrame(padLeft, num, GameCanvas.w - padLeft * 2, h, g);
-            int num2 = num + (h - info.Length * mFont.tahoma_8b.getHeight()) / 2 - 2;
-            if (isWait)
-            {
-                num2 += 8;
-                GameCanvas.paintShukiren(GameCanvas.hw, num2 - 12, g, false);
-            }
-
-            int num3 = 0;
-            int num4 = num2;
-            while (num3 < info.Length)
-            {
-                mFont.tahoma_8b.drawString(g, info[num3], GameCanvas.hw, num4, 2);
-                num3++;
-                num4 += mFont.tahoma_8b.getHeight();
-            }
-        }
-
-        base.paint(g);
     }
 
     /// <summary>Advance this object&#x27;s state for the current client logic tick.</summary>

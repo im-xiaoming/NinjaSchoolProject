@@ -35,14 +35,16 @@ public class InputDlg : Dialog
         show();
     }
 
-    /// <summary>Draw this object&#x27;s current state through the legacy graphics wrapper.</summary>
-    /// <param name="g">Legacy drawing context.</param>
+    // Drawn by the Canvas UI (InputDlgView): these give it the layout.
     public override void paint(mGraphics g)
     {
-        GameCanvas.paintz.paintInputDlg(g, padLeft, GameCanvas.h - 77 - mScreen.cmdH, GameCanvas.w - padLeft * 2, 69, info, GameCanvas.testCapcha);
-        tfInput.paint(g);
-        base.paint(g);
     }
+
+    public string[] Info { get { return info; } }
+    public int FrameX { get { return padLeft; } }
+    public int FrameY { get { return GameCanvas.h - 77 - mScreen.cmdH; } }
+    public int FrameW { get { return GameCanvas.w - padLeft * 2; } }
+    public int FrameH { get { return 69; } }
 
     // Key routing, field update/focus, number stepping and button navigation live in Dialog.
     protected override TField FocusedField

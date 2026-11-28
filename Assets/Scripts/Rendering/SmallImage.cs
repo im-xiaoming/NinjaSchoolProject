@@ -83,12 +83,6 @@ public class SmallImage
         }
     }
 
-    /// <summary>Perform free big.</summary>
-    public static void freeBig()
-    {
-        imgbig = null;
-    }
-
     /// <summary>Load big image.</summary>
     public static void loadBigImage()
     {
@@ -138,13 +132,6 @@ public class SmallImage
         {
             Out.println(" loi redImg " + ex.ToString());
         }
-    }
-
-    /// <summary>Return with.</summary>
-    /// <param name="id">Identifier.</param>
-    public static int getWith(int id)
-    {
-        return smallImg[id][3];
     }
 
     /// <summary>Return height.</summary>
@@ -363,17 +350,4 @@ public class SmallImage
         }
     }
 
-    /// <summary>Draw region small image in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    /// <param name="id">Identifier.</param>
-    /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="y">Vertical coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="w">Width or horizontal span.</param>
-    /// <param name="h">Height or vertical span.</param>
-    /// <param name="transform">Transform.</param>
-    /// <param name="anchor">Anchor.</param>
-    public static void drawRegionSmallImage(mGraphics g, int id, int x, int y, int w, int h, int transform, int anchor)
-    {
-        g.drawRegion(imgbig[smallImg[id][0]], smallImg[id][1], smallImg[id][2], (smallImg[id][3] >= w) ? w : smallImg[id][3], (smallImg[id][4] >= h) ? h : smallImg[id][4], transform, x, y, anchor);
-    }
 }

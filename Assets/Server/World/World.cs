@@ -429,12 +429,6 @@ namespace NsoServer.World
             return new List<TileMap>(tileMaps.Values);
         }
 
-        /// <summary>Compute monster templates.</summary>
-        public List<MobTemplate> MonsterTemplates()
-        {
-            return new List<MobTemplate>(mobTemplates.Values);
-        }
-
         /// <summary>Find monster.</summary>
         /// <param name="id">Identifier.</param>
         /// <remarks>Locals: t: Current entry or time sample.</remarks>

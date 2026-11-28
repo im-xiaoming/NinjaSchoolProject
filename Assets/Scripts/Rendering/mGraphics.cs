@@ -233,36 +233,6 @@ public class mGraphics
         GUIUtility.RotateAroundPivot(0f - num3, vector);
     }
 
-    /// <summary>Set color mini map.</summary>
-    /// <param name="rgb">Red/green/blue channels.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained; num3: Numeric intermediate used by this operation; the legacy name is retained; num4: Numeric intermediate used by this operation; the legacy name is retained; num5: Numeric intermediate used by this operation; the legacy name is retained; num6: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public Color setColorMiniMap(int rgb)
-    {
-        int num = rgb & 0xFF;
-        int num2 = (rgb >> 8) & 0xFF;
-        int num3 = (rgb >> 16) & 0xFF;
-        float num4 = (float)num / 256f;
-        float num5 = (float)num2 / 256f;
-        float num6 = (float)num3 / 256f;
-        return new Color(num6, num5, num4);
-    }
-
-    /// <summary>Return red/green/blue channels.</summary>
-    /// <param name="cl">Cl.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained; num3: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public float[] getRGB(Color cl)
-    {
-        float num = 256f * cl.r;
-        float num2 = 256f * cl.g;
-        float num3 = 256f * cl.b;
-        return new float[3]
-        {
-            num,
-            num2,
-            num3
-        };
-    }
-
     /// <summary>Draw rectangle in the current graphics context.</summary>
     /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
     /// <param name="y">Vertical coordinate in the caller&#x27;s coordinate space.</param>
@@ -392,6 +362,9 @@ public class mGraphics
             }
         }
 
+        if (DrawRecorder.Armed)
+            DrawRecorder.Fill(isClip ? intersectRect(new Rect(x, y, w, h), new Rect(num3, num4, num5, num6)) : new Rect(x, y, w, h), new Color(r, g, b, Mathf.Clamp01(a)));
+
         if (isClip)
         {
             GUI.BeginGroup(new Rect(num3, num4, num5, num6));
@@ -425,24 +398,6 @@ public class mGraphics
         b = color.b;
         g = color.g;
         r = color.r;
-    }
-
-    /// <summary>Set bg color.</summary>
-    /// <param name="rgb">Red/green/blue channels.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained; num3: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public void setBgColor(int rgb)
-    {
-        if (rgb != currentBGColor)
-        {
-            currentBGColor = rgb;
-            int num = rgb & 0xFF;
-            int num2 = (rgb >> 8) & 0xFF;
-            int num3 = (rgb >> 16) & 0xFF;
-            b = (float)num / 256f;
-            g = (float)num2 / 256f;
-            r = (float)num3 / 256f;
-            Main.main.GetComponent<Camera>().backgroundColor = new Color(r, g, b);
-        }
     }
 
     /// <summary>Draw string in the current graphics context.</summary>
@@ -826,6 +781,8 @@ public class mGraphics
         if (transform == 1 || transform == 3)
             sourceOffsetY = h - num4 - num2;
         Rect source = new Rect((x0 + sourceOffsetX) / (float)image.texture.width, ((float)image.texture.height - num2 - (y0 + sourceOffsetY)) / (float)image.texture.height, num / (float)image.texture.width, num2 / (float)image.texture.height);
+        if (DrawRecorder.Armed)
+            DrawRecorder.Image(image.texture, destination, source, transform == 5 ? 90f : (transform == 6 || transform == 4 || transform == 7) ? 270f : 0f, color);
         if (material == null)
         {
             Graphics.DrawTexture(destination, image.texture, source, 0, 0, 0, 0);
@@ -1053,42 +1010,22 @@ public class mGraphics
         {
             if (image.texture.filterMode != FilterMode.Bilinear)
                 image.texture.filterMode = FilterMode.Bilinear; // scaled art would be jagged with point filtering
+            if (DrawRecorder.Armed)
+                DrawRecorder.Image(image.texture, new Rect(x + translateX + scrollPaintOffset.x, y + translateY + scrollPaintOffset.y, (tranform != 0) ? (-w) : w, h), new Rect(0, 0, 1, 1), 0f, Color.white);
             Graphics.DrawTexture(new Rect(x + translateX + scrollPaintOffset.x, y + translateY + scrollPaintOffset.y, (tranform != 0) ? (-w) : w, h), image.texture);
         }
     }
 
     // Pixel art drawn at a whole-number scale with point filtering, centred on (cx, cy) in game pixels: every source
     // pixel becomes a clean scale x scale block, so the edges stay sharp (no uneven, jagged steps from a fractional scale).
-    /// <summary>Draw image pixel scale in the current graphics context.</summary>
-    /// <param name="image">Image.</param>
-    /// <param name="cx">Character horizontal position in map pixels.</param>
-    /// <param name="cy">Character vertical position in map pixels.</param>
-    /// <param name="scale">Scale.</param>
-    /// <remarks>Locals: w: Measured horizontal size; h: Measured vertical size; x: Horizontal coordinate in the caller&#x27;s coordinate space; y: Vertical coordinate in the caller&#x27;s coordinate space.</remarks>
-    public void drawImagePixelScale(Image image, int cx, int cy, int scale)
+    /// <summary>DrawRecorder: true when a point (game px, translated) lies inside the current clip.</summary>
+    public bool RecorderVisible(float gx, float gy)
     {
-        if (image == null || image.texture == null)
-            return;
-        if (image.texture.filterMode != FilterMode.Point)
-            image.texture.filterMode = FilterMode.Point;
-        int w = image.texture.width * scale, h = image.texture.height * scale;
-        float x = cx * zoomLevel + (isTranslate ? translateX : 0) - w / 2;
-        float y = cy * zoomLevel + (isTranslate ? translateY : 0) - h / 2;
-        Graphics.DrawTexture(new Rect(Mathf.Round(x) + scrollPaintOffset.x, Mathf.Round(y) + scrollPaintOffset.y, w, h), image.texture);
-    }
-
-    /// <summary>Draw image simple in the current graphics context.</summary>
-    /// <param name="image">Image.</param>
-    /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="y">Vertical coordinate in the caller&#x27;s coordinate space.</param>
-    public void drawImageSimple(Image image, int x, int y)
-    {
-        x *= zoomLevel;
-        y *= zoomLevel;
-        if (image != null)
-        {
-            Graphics.DrawTexture(new Rect(x + scrollPaintOffset.x, y + scrollPaintOffset.y, image.w, image.h), image.texture);
-        }
+        if (!isClip)
+            return true;
+        float sx = gx * zoomLevel, sy = gy * zoomLevel;
+        float cx = clipX + (isTranslate ? clipTX : 0), cy = clipY + (isTranslate ? clipTY : 0);
+        return sx >= cx - 1 && sx < cx + clipW && sy >= cy - 1 && sy < cy + clipH;
     }
 
     /// <summary>Return image width.</summary>

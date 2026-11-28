@@ -24,6 +24,8 @@ public abstract class Dialog
     }
 
     private static readonly Command[] orderBuf = new Command[3];
+    /// <summary>The bottom button chosen with the arrow keys (null = none), shown focused by the Canvas views.</summary>
+    public Command KeySelection { get { return keySel; } }
     // ---- Shared input handling (offline addition, user request: one base class instead of per-dialog fixes) ----
     // Every dialog gets, from this base class:
     //   * Left/Right arrows (keyboard, gamepad) choose a bottom button, Enter presses it;

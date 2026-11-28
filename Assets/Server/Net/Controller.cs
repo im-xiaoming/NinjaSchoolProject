@@ -746,16 +746,6 @@ namespace NsoServer.Net
             }
         }
 
-        /// <summary>Perform non-player character not available.</summary>
-        /// <remarks>Locals: ms: Outgoing protocol message.</remarks>
-        private void NpcNotAvailable()
-        {
-            var ms = new Message(Cmd.ALERT_MESSAGE);
-            ms.Writer.WriteUTF("Th\u00f4ng b\u00e1o");
-            ms.Writer.WriteUTF("Ch\u1ee9c n\u0103ng n\u00e0y ch\u01b0a c\u00f3 trong b\u1ea3n offline.");
-            session.Send(ms);
-        }
-
         /// <summary>Perform dialog.</summary>
         /// <param name="text">Text fragment assembled or read by this operation.</param>
         /// <remarks>Locals: ms: Outgoing protocol message.</remarks>

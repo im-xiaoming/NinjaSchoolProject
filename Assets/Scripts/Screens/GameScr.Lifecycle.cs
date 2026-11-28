@@ -22,8 +22,6 @@ public partial class GameScr
         imgEffMob3 = GameCanvas.loadImage("/eff/g99");
         imgsmokeFollow = GameCanvas.loadImage("/eff/g9");
         imgTf = GameCanvas.loadImage("/hd/tf");
-        imgMenu1 = GameCanvas.loadImage("/hd/btnlBig0");
-        imgMenu2 = GameCanvas.loadImage("/hd/btnlBig1");
         imgButton = GameCanvas.loadImage("/hd/button");
         imgButton2 = GameCanvas.loadImage("/hd/button2");
         imgHpp = GameCanvas.loadImage("/hd/hpp");

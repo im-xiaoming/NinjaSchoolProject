@@ -309,19 +309,6 @@ namespace NsoServer.Net
             Goosho
         };
         // read-only views of the tables above for the dev wiki
-        /// <summary>Compute reward of through the authoritative player rules.</summary>
-        /// <param name="taskId">Main quest identifier.</param>
-        public static long[] RewardOf(int taskId)
-        {
-            return taskId >= 0 && taskId < Rewards.GetLength(0) ? new[]
-            {
-                Rewards[taskId, 0],
-                Rewards[taskId, 1]
-            }
-
-            : null;
-        }
-
         /// <summary>Compute task drop list through the authoritative player rules.</summary>
         /// <remarks>Locals: i: Loop/collection index.</remarks>
         public static List<int[]> TaskDropList()
@@ -1425,20 +1412,6 @@ namespace NsoServer.Net
             new KeyValuePair<int, string>(72, "Trường Ookaza")
         };
         public const int NpcUmayakiId = Umayaki, NpcUmayaki2Id = Umayaki2;
-        /// <summary>Check whether village map applies to the supplied state.</summary>
-        /// <param name="map">Map.</param>
-        public static bool IsVillageMap(int map)
-        {
-            return IsVillage(map);
-        }
-
-        /// <summary>Check whether school map applies to the supplied state.</summary>
-        /// <param name="map">Map.</param>
-        public static bool IsSchoolMap(int map)
-        {
-            return IsVillageOrSchool(map) && !IsVillage(map);
-        }
-
         // Char.npcUmayaki_2: the carriage at the three schools
         /// <summary>Perform non-player character umayaki2 through the authoritative player rules.</summary>
         /// <param name="me">Authoritative runtime character state.</param>

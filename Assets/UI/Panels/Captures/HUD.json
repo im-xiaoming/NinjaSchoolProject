@@ -1,0 +1,1568 @@
+{
+    "name": "HUD",
+    "section": "hud",
+    "gameW": 642,
+    "gameH": 362,
+    "ops": [
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 581.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.3671875,
+                "g": 0.48046875,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 581.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 0.0,
+            "y": 3.0,
+            "w": 581.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 57.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 115.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 173.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 231.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 289.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 347.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 405.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 463.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 521.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.41796875,
+                "g": 0.125,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 51.0,
+            "y": 10.0,
+            "w": 85.0,
+            "h": 11.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.800000011920929
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 52.0,
+            "y": 10.0,
+            "w": 82.0,
+            "h": 9.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.89453125,
+                "g": 0.0,
+                "b": 0.078125,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 24.0,
+            "y": 23.0,
+            "w": 85.0,
+            "h": 11.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.800000011920929
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 52.0,
+            "y": 26.0,
+            "w": 57.0,
+            "h": 7.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.33203125,
+                "b": 0.89453125,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 0.0,
+            "y": 3.0,
+            "w": 142.0,
+            "h": 45.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.014598540030419827,
+                "width": 1.0,
+                "height": 0.985401451587677
+            },
+            "sprite": "a5924e68e272adb01159cf09930cf040.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 0.0,
+            "y": 1.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "30",
+            "font": 5,
+            "align": 2
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 0.9215686321258545,
+                "b": 0.01568627543747425,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "30",
+            "font": 5,
+            "align": 2
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 51.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.33203125,
+                "g": 0.33203125,
+                "b": 0.33203125,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Nhận NV ở Làng chài",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 50.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Nhận NV ở Làng chài",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 3.0,
+            "y": 67.0,
+            "w": 5.0,
+            "h": 5.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.5,
+                "b": 0.99609375,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 3.0,
+            "y": 67.0,
+            "w": 5.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 3.0,
+            "y": 67.0,
+            "w": 1.0,
+            "h": 5.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 8.0,
+            "y": 67.0,
+            "w": 1.0,
+            "h": 6.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 3.0,
+            "y": 72.0,
+            "w": 6.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 15.0,
+            "y": 63.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.33203125,
+                "g": 0.33203125,
+                "b": 0.33203125,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Bù nhìn lv1",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 15.0,
+            "y": 62.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Bù nhìn lv1",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 87.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.33203125,
+                "g": 0.33203125,
+                "b": 0.33203125,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Map: Làng Tone[22] - Khu: 0",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 86.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Map: Làng Tone[22] - Khu: 0",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 99.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.33203125,
+                "g": 0.33203125,
+                "b": 0.33203125,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Time: 01:24:14",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 98.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Time: 01:24:14",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 111.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.33203125,
+                "g": 0.33203125,
+                "b": 0.33203125,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Site: [2449-192]",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "text",
+            "section": "hud",
+            "x": 3.0,
+            "y": 110.0,
+            "w": 0.0,
+            "h": 0.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "Site: [2449-192]",
+            "font": 1,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 581.0,
+            "y": 0.0,
+            "w": 61.0,
+            "h": 42.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 581.0,
+            "y": 0.0,
+            "w": 62.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.3125,
+                "g": 0.2265625,
+                "b": 0.0390625,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 581.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 42.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.3125,
+                "g": 0.2265625,
+                "b": 0.0390625,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 643.0,
+            "y": 0.0,
+            "w": 1.0,
+            "h": 43.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.3125,
+                "g": 0.2265625,
+                "b": 0.0390625,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 581.0,
+            "y": 42.0,
+            "w": 63.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.3125,
+                "g": 0.2265625,
+                "b": 0.0390625,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 582.0,
+            "y": 1.0,
+            "w": 60.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.5234375,
+                "g": 0.38671875,
+                "b": 0.09375,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 582.0,
+            "y": 1.0,
+            "w": 1.0,
+            "h": 40.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.5234375,
+                "g": 0.38671875,
+                "b": 0.09375,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 642.0,
+            "y": 1.0,
+            "w": 1.0,
+            "h": 41.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.5234375,
+                "g": 0.38671875,
+                "b": 0.09375,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 582.0,
+            "y": 41.0,
+            "w": 61.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.5234375,
+                "g": 0.38671875,
+                "b": 0.09375,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 583.0,
+            "y": 16.0,
+            "w": 58.0,
+            "h": 25.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.7250000238418579,
+                "y": 0.1071428582072258,
+                "width": 0.24166665971279144,
+                "height": 0.8928571343421936
+            },
+            "sprite": "58d408bec4b90a83f4a51dfc8d45f2ab.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 611.0,
+            "y": 30.0,
+            "w": 5.0,
+            "h": 5.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.99609375,
+                "g": 0.99609375,
+                "b": 0.99609375,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 612.0,
+            "y": 31.0,
+            "w": 3.0,
+            "h": 3.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.99609375,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 581.0,
+            "y": 0.0,
+            "w": 61.0,
+            "h": 43.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 1.0,
+                "height": 1.0
+            },
+            "sprite": "98a7340804a7b6224232504c1b5f738c.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 243.0,
+            "y": 327.0,
+            "w": 26.0,
+            "h": 26.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 1.0,
+                "height": 1.0
+            },
+            "sprite": "1fe6cefda5d06feb4efe0b77219c39d2.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 246.0,
+            "y": 330.0,
+            "w": 19.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.99609375,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 246.0,
+            "y": 330.0,
+            "w": 1.0,
+            "h": 19.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.99609375,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 265.0,
+            "y": 330.0,
+            "w": 1.0,
+            "h": 20.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.99609375,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "fill",
+            "section": "hud",
+            "x": 246.0,
+            "y": 349.0,
+            "w": 20.0,
+            "h": 1.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 0.99609375,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 0.0,
+                "height": 0.0
+            },
+            "sprite": "",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 248.0,
+            "y": 332.0,
+            "w": 16.0,
+            "h": 16.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.5098039507865906,
+                "y": 0.21568627655506134,
+                "width": 0.062745101749897,
+                "height": 0.062745101749897
+            },
+            "sprite": "cb0cbceda565ce1522042b22c6c97321.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 273.0,
+            "y": 327.0,
+            "w": 26.0,
+            "h": 26.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 1.0,
+                "height": 1.0
+            },
+            "sprite": "1fe6cefda5d06feb4efe0b77219c39d2.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 278.0,
+            "y": 332.0,
+            "w": 16.0,
+            "h": 16.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.4470588266849518,
+                "y": 0.09019608050584793,
+                "width": 0.062745101749897,
+                "height": 0.062745101749897
+            },
+            "sprite": "72f89464918bdd094a7fc255393f469a.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 303.0,
+            "y": 327.0,
+            "w": 26.0,
+            "h": 26.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 1.0,
+                "height": 1.0
+            },
+            "sprite": "1fe6cefda5d06feb4efe0b77219c39d2.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 308.0,
+            "y": 332.0,
+            "w": 16.0,
+            "h": 16.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.16470588743686676,
+                "y": 0.545098066329956,
+                "width": 0.062745101749897,
+                "height": 0.062745101749897
+            },
+            "sprite": "07d7e0c7c1627c149e8f3465c26f1f50.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 333.0,
+            "y": 327.0,
+            "w": 26.0,
+            "h": 26.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 1.0,
+                "height": 1.0
+            },
+            "sprite": "1fe6cefda5d06feb4efe0b77219c39d2.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 338.0,
+            "y": 332.0,
+            "w": 16.0,
+            "h": 16.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.4470588266849518,
+                "y": 0.529411792755127,
+                "width": 0.062745101749897,
+                "height": 0.062745101749897
+            },
+            "sprite": "6d39835a4c0506810a12ebe1753cfcfb.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        },
+        {
+            "kind": "image",
+            "section": "hud",
+            "x": 363.0,
+            "y": 327.0,
+            "w": 26.0,
+            "h": 26.0,
+            "rotation": 0.0,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "uv": {
+                "serializedVersion": "2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 1.0,
+                "height": 1.0
+            },
+            "sprite": "1fe6cefda5d06feb4efe0b77219c39d2.png",
+            "text": "",
+            "font": 0,
+            "align": 0
+        }
+    ]
+}

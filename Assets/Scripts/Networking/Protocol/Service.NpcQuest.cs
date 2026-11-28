@@ -119,27 +119,6 @@ public partial class Service
         }
     }
 
-    /// <summary>Send the request non-player character template request through the existing client protocol.</summary>
-    /// <param name="npcTemplateId">Non-player character template identifier.</param>
-    public void requestNpcTemplate(int npcTemplateId)
-    {
-        Message message = null;
-        try
-        {
-            message = messageNotMap(-107);
-            message.writer().writeByte(npcTemplateId);
-            session.sendMessage(message);
-        }
-        catch (Exception ex)
-        {
-            Out.println(ex.Message + ex.StackTrace);
-        }
-        finally
-        {
-            message.cleanup();
-        }
-    }
-
     /// <summary>Open menu.</summary>
     /// <param name="npcId">NPC template identifier.</param>
     public void openMenu(int npcId)
@@ -363,26 +342,6 @@ public partial class Service
         finally
         {
             message.cleanup();
-        }
-    }
-
-    /// <summary>Send the request change pass request through the existing client protocol.</summary>
-    /// <param name="username">Username.</param>
-    /// <param name="oldpass">Oldpass.</param>
-    /// <param name="newpass">Newpass.</param>
-    public void requestChangePass(string username, string oldpass, string newpass)
-    {
-        try
-        {
-            Message message = messageNotLogin(120);
-            message.writer().writeUTF(username);
-            message.writer().writeUTF(oldpass);
-            message.writer().writeUTF(newpass);
-            session.sendMessage(message);
-            message.cleanup();
-        }
-        catch (Exception)
-        {
         }
     }
 

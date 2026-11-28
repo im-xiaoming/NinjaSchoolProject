@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags: []
   layers:
   - Default
@@ -11,15 +11,15 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Ground
+  - Platforms
+  - Bridges
+  - Trees
+  - Hazards
+  - Decor
+  - NPC
+  - Background
+  - Front
   - 
   - 
   - 
@@ -38,6 +38,45 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 1109047913
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Ground
+    uniqueID: 105187706
+    locked: 0
+  - name: Platforms
+    uniqueID: 2147331079
+    locked: 0
+  - name: Bridges
+    uniqueID: 1862296650
+    locked: 0
+  - name: Trees
+    uniqueID: 131736474
+    locked: 0
+  - name: Water
+    uniqueID: 1071282676
+    locked: 0
+  - name: Hazards
+    uniqueID: 10382
+    locked: 0
+  - name: Decor
+    uniqueID: 278736221
+    locked: 0
+  - name: NPC
+    uniqueID: 1849385040
+    locked: 0
+  - name: WaterSurface
+    uniqueID: 335788968
+    locked: 0
+  - name: Front
+    uniqueID: 526044292
+    locked: 0
+  - name: UI
+    uniqueID: 900000001
+    locked: 0
+  m_RenderingLayers:
+  - Default
+  m_MigratedRenderPipelines: []

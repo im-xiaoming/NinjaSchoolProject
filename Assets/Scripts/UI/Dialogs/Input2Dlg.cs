@@ -63,18 +63,18 @@ public class Input2Dlg : Dialog, IActionListener
         show();
     }
 
-    /// <summary>Draw this object&#x27;s current state through the legacy graphics wrapper.</summary>
-    /// <param name="g">Legacy drawing context.</param>
+    // Drawn by the Canvas UI (InputDlgView): these give it the layout.
     public override void paint(mGraphics g)
     {
-        GameCanvas.paintz.paintInputDlg(g, padLeft, GameCanvas.h - 85 - mScreen.cmdH - line * 13, GameCanvas.w - padLeft * 2, 80 + line * 13, info, GameCanvas.testCapcha);
-        mFont.tahoma_8b.drawString(g, tfInput.title + ": ", tfInput.x - titleLenght - 5, tfInput.y + 2, 0);
-        tfInput.paint(g);
-        g.setClip(0, 0, GameCanvas.w, GameCanvas.h);
-        mFont.tahoma_8b.drawString(g, tfInput2.title + ": ", tfInput2.x - titleLenght - 5, tfInput2.y + 2, 0);
-        tfInput2.paint(g);
-        base.paint(g);
     }
+
+    public string[] Info { get { return info; } }
+    public int FrameX { get { return padLeft; } }
+    public int FrameY { get { return GameCanvas.h - 85 - mScreen.cmdH - line * 13; } }
+    public int FrameW { get { return GameCanvas.w - padLeft * 2; } }
+    public int FrameH { get { return 80 + line * 13; } }
+    /// <summary>Width of the longer field title; the titles are drawn left of the fields.</summary>
+    public int TitleWidth { get { return titleLenght; } }
 
     // Key routing, field update/focus and button navigation live in Dialog; this dialog only says
     // which field is focused. Up/Down switch between the two fields here, so they do not step numbers.

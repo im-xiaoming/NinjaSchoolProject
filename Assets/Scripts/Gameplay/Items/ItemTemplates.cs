@@ -15,13 +15,6 @@ public class ItemTemplates
         return (ItemTemplate)itemTemplates.get(id);
     }
 
-    /// <summary>Return part.</summary>
-    /// <param name="itemTemplateID">Item template identifier.</param>
-    public static short getPart(short itemTemplateID)
-    {
-        return get(itemTemplateID).part;
-    }
-
     /// <summary>Return icon.</summary>
     /// <param name="itemTemplateID">Item template identifier.</param>
     public static short getIcon(short itemTemplateID)

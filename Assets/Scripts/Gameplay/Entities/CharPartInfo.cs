@@ -16,23 +16,6 @@ public class CharPartInfo
     // dy: Vertical difference or offset.
     public int dy;
     public int idSmall;
-    /// <summary>Return horizontal offset vertical offset.</summary>
-    /// <param name="idTem">Identifier tem.</param>
-    public int[] getDxDy(int idTem)
-    {
-        CharPartInfo charPartInfo = (CharPartInfo)item.get(idTem + string.Empty);
-        if (charPartInfo != null)
-        {
-            return new int[2]
-            {
-                charPartInfo.dx,
-                charPartInfo.dy
-            };
-        }
-
-        return new int[2];
-    }
-
     /// <summary>Set info.</summary>
     /// <param name="msg">Framed protocol message.</param>
     /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index; num2: Field decoded from the incoming binary payload; num3: Field decoded from the incoming binary payload; num4: Field decoded from the incoming binary payload; j: Nested loop/collection index; num5: Field decoded from the incoming binary payload; num6: Field decoded from the incoming binary payload; num7: Field decoded from the incoming binary payload; k: Key or nested iteration index; num8: Field decoded from the incoming binary payload; num9: Field decoded from the incoming binary payload; num10: Field decoded from the incoming binary payload; l: Length or current list; num11: Field decoded from the incoming binary payload; num12: Field decoded from the incoming binary payload; num13: Field decoded from the incoming binary payload; m: Current message or map entry; num14: Field decoded from the incoming binary payload; num15: Field decoded from the incoming binary payload; num16: Field decoded from the incoming binary payload; n: Number of entries or iterations; num17: Field decoded from the incoming binary payload; num18: Field decoded from the incoming binary payload; num19: Field decoded from the incoming binary payload; num20: Numeric intermediate used by this operation; the legacy name is retained; num21: Field decoded from the incoming binary payload; num22: Field decoded from the incoming binary payload; num23: Numeric intermediate used by this operation; the legacy name is retained; num24: Field decoded from the incoming binary payload; num25: Field decoded from the incoming binary payload; num26: Field decoded from the incoming binary payload; num27: Numeric intermediate used by this operation; the legacy name is retained; num28: Field decoded from the incoming binary payload; num29: Field decoded from the incoming binary payload; num30: Field decoded from the incoming binary payload; num31: Numeric intermediate used by this operation; the legacy name is retained; num32: Field decoded from the incoming binary payload; num33: Field decoded from the incoming binary payload; num34: Field decoded from the incoming binary payload; num35: Numeric intermediate used by this operation; the legacy name is retained; num36: Field decoded from the incoming binary payload; num37: Field decoded from the incoming binary payload; num38: Field decoded from the incoming binary payload; num39: Numeric intermediate used by this operation; the legacy name is retained; num40: Field decoded from the incoming binary payload; num41: Field decoded from the incoming binary payload; num42: Field decoded from the incoming binary payload; num43: Numeric intermediate used by this operation; the legacy name is retained; num44: Field decoded from the incoming binary payload; num45: Field decoded from the incoming binary payload; num46: Field decoded from the incoming binary payload; num47: Field decoded from the incoming binary payload; num48: Numeric intermediate used by this operation; the legacy name is retained; num49: Field decoded from the incoming binary payload; num50: Numeric intermediate used by this operation; the legacy name is retained; array: Entry selected from the source collection; num51: Numeric intermediate used by this operation; the legacy name is retained; num52: Field decoded from the incoming binary payload; num53: Numeric intermediate used by this operation; the legacy name is retained.</remarks>

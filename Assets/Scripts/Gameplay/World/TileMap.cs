@@ -193,11 +193,6 @@ public class TileMap
         }
     }
 
-    /// <summary>Retain the free tilemap compatibility hook without performing work.</summary>
-    public static void freeTilemap()
-    {
-    }
-
     /// <summary>Load tile image.</summary>
     public static void loadTileImage()
     {
@@ -710,56 +705,6 @@ public class TileMap
         imgMiniMap.texture.Apply();
     }
 
-    /// <summary>Draw tilemap low in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    /// <remarks>Locals: i: Loop/collection index; j: Nested loop/collection index; num: Entry selected from the source collection.</remarks>
-    public static void paintTilemapLOW(mGraphics g)
-    {
-        for (int i = GameScr.gssx; i < GameScr.gssxe; i++)
-        {
-            for (int j = GameScr.gssy; j < GameScr.gssye; j++)
-            {
-                int num = maps[j * tmw + i] - 1;
-                if (num != -1)
-                {
-                    g.drawImage(imgTileMap[num], i * size, j * size, 0);
-                }
-
-                if ((tileTypeAt(i, j) & T_WATERFALL) == T_WATERFALL)
-                {
-                    g.drawRegion(imgWaterfall, 0, 24 * (GameCanvas.gameTick % 4), 24, 24, 0, i * size, j * size, 0);
-                }
-                else if ((tileTypeAt(i, j) & T_WATERFLOW) == T_WATERFLOW)
-                {
-                    if ((tileTypeAt(i, j - 1) & T_WATERFALL) == T_WATERFALL)
-                    {
-                        g.drawRegion(imgWaterfall, 0, 24 * (GameCanvas.gameTick % 4), 24, 24, 0, i * size, j * size, 0);
-                    }
-                    else if ((tileTypeAt(i, j - 1) & T_SOLIDGROUND) == T_SOLIDGROUND)
-                    {
-                        g.drawImage(imgTileMap[21], i * size, j * size, 0);
-                    }
-
-                    g.drawRegion(imgWaterflow, 0, (GameCanvas.gameTick % 8 >> 2) * 24, 24, 24, 0, i * size, j * size, 0);
-                }
-
-                if ((tileTypeAt(i, j) & T_UNDERWATER) == T_UNDERWATER)
-                {
-                    if ((tileTypeAt(i, j - 1) & T_WATERFALL) == T_WATERFALL)
-                    {
-                        g.drawRegion(imgWaterfall, 0, 24 * (GameCanvas.gameTick % 4), 24, 24, 0, i * size, j * size, 0);
-                    }
-                    else if ((tileTypeAt(i, j - 1) & T_SOLIDGROUND) == T_SOLIDGROUND)
-                    {
-                        g.drawImage(imgTileMap[21], i * size, j * size, 0);
-                    }
-
-                    g.drawImage(imgTileMap[maps[j * tmw + i] - 1], i * size, j * size, 0);
-                }
-            }
-        }
-    }
-
     /// <summary>Draw tilemap in the current graphics context.</summary>
     /// <param name="g">Legacy drawing context.</param>
     /// <remarks>Locals: i: Loop/collection index; j: Nested loop/collection index; num: Entry selected from the source collection; num2: Numeric intermediate used by this operation; the legacy name is retained; num3: Numeric intermediate used by this operation; the legacy name is retained; num4: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
@@ -1194,15 +1139,6 @@ public class TileMap
     public static void setTileTypeAtPixel(int px, int py, int t)
     {
         types[py / size * tmw + px / size] |= t;
-    }
-
-    /// <summary>Set tile type at.</summary>
-    /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="y">Vertical coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="t">Current entry or time sample.</param>
-    public static void setTileTypeAt(int x, int y, int t)
-    {
-        types[y * tmw + x] = t;
     }
 
     /// <summary>Perform kill tile type at.</summary>
@@ -2202,28 +2138,6 @@ public class TileMap
                 Monitor.PulseAll(objLockMap);
             }
         }
-    }
-
-    /// <summary>Compute collision y.</summary>
-    /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
-    /// <param name="y">Vertical coordinate in the caller&#x27;s coordinate space.</param>
-    public static int collisionY(int x, int y)
-    {
-        // if (!(y % 24 != 0 && tileTypeAt(x, y, TileMap.T_TOP) && tileTypeAt(x, y,
-        // TileMap.T_SOLIDGROUND))) {
-        y = (y / 24 * 24);
-        while (y < TileMap.pxh)
-        {
-            if (tileTypeAt(x, y, TileMap.T_TOP) || tileTypeAt(x, y, TileMap.T_BRIDGE) || tileTypeAt(x, y, TileMap.T_WATERFLOW))
-            {
-                return y;
-            }
-
-            y += 24;
-        }
-
-        // }
-        return (TileMap.pxh - 1);
     }
 
     /// <summary>Compute p move.</summary>

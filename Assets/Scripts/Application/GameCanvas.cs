@@ -420,14 +420,6 @@ public class GameCanvas : IActionListener
         startOK(mResources.languageID == mResources.Lang_EN ? "Connection lost. Press OK to enter the game again." : "M\u1EA5t k\u1EBFt n\u1ED1i. B\u1EA5m OK \u0111\u1EC3 v\u00E0o l\u1EA1i game.", 8884, null);
     }
 
-    /// <summary>Show error form.</summary>
-    /// <param name="type">Retained for call compatibility; not read by this implementation.</param>
-    /// <param name="moreInfo">More info.</param>
-    public static void showErrorForm(int type, string moreInfo)
-    {
-        Out.println("SHOW ERROR FORM  " + moreInfo);
-    }
-
     /// <summary>Update ball effect.</summary>
     public void updateBallEffect()
     {
@@ -1640,6 +1632,8 @@ public class GameCanvas : IActionListener
     {
         if (TextCalib.Open && NsoSettingsMenu.Pointer(x, y, 1))
             return;
+        if (NsoUI.PressIsOnUI)
+            return; // dragging on the Canvas UI
         if (Res.abs(x - pxLast) >= 10 || Res.abs(y - pyLast) >= 10)
         {
             isPointerClick = false;
@@ -1663,6 +1657,8 @@ public class GameCanvas : IActionListener
     {
         if (TextCalib.Open && NsoSettingsMenu.Pointer(x, y, 0))
             return;
+        if (NsoUI.BeginPress())
+            return; // the press is on a Canvas UI element: it handles the click
         isPointerJustDown = true;
         isPointerDown = true;
         isPointerClick = true;
@@ -1682,6 +1678,8 @@ public class GameCanvas : IActionListener
     {
         if (TextCalib.Open && NsoSettingsMenu.Pointer(x, y, 2))
             return;
+        if (NsoUI.EndPress())
+            return; // release of a press that started on the Canvas UI
         isPointerDown = false;
         isPointerJustRelease = true;
         mScreen.keyTouch = -1;
@@ -1788,11 +1786,7 @@ public class GameCanvas : IActionListener
                 debug("PC", 1);
                 currentDialog.paint(g);
             }
-            else if (menu.showMenu)
-            {
-                debug("PD", 1);
-                menu.paintMenu(g);
-            }
+            // menu.showMenu: the menu is drawn by the Canvas UI (MenuView)
 
             debug("PE", 1);
             NsoSettingsMenu.PaintOverlay(g); // FPS counter (Settings > Hình ảnh > Hiện FPS)
@@ -2017,38 +2011,6 @@ public class GameCanvas : IActionListener
         wsX[num] = x;
         wsY[num] = y;
         return true;
-    }
-
-    /// <summary>Update water splash.</summary>
-    /// <remarks>Locals: i: Loop/collection index.</remarks>
-    public void updateWaterSplash()
-    {
-        if (lowGraphic || Main.isIpod || mGraphics.zoomLevel == 1)
-        {
-            return;
-        }
-
-        for (int i = 0; i < 2; i++)
-        {
-            if (wsState[i] == -1)
-            {
-                continue;
-            }
-
-            wsY[i]--;
-            if (gameTick % 2 == 0)
-            {
-                wsState[i]++;
-                if (wsState[i] > 2)
-                {
-                    wsState[i] = -1;
-                }
-                else
-                {
-                    wsF[i] = wsState[i];
-                }
-            }
-        }
     }
 
     /// <summary>Update dust.</summary>
@@ -2631,13 +2593,6 @@ public class GameCanvas : IActionListener
         }
     }
 
-    /// <summary>Retain the size changed compatibility hook without performing work.</summary>
-    /// <param name="w">Retained for call compatibility; not read by this implementation.</param>
-    /// <param name="h">Retained for call compatibility; not read by this implementation.</param>
-    protected void sizeChanged(int w, int h)
-    {
-    }
-
     /// <summary>Update timeplay.</summary>
     public static void updateTimeplay()
     {
@@ -2650,11 +2605,6 @@ public class GameCanvas : IActionListener
                 xKd = w;
             }
         }
-    }
-
-    /// <summary>Retain the init time compatibility hook without performing work.</summary>
-    public static void initTime()
-    {
     }
 
     /// <summary>Draw kiemduyet time in the current graphics context.</summary>
@@ -2671,15 +2621,4 @@ public class GameCanvas : IActionListener
         }
     }
 
-    /// <summary>Compute conver secon2hours.</summary>
-    /// <param name="totalSeconds">Total seconds (seconds).</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained; num3: Numeric intermediate used by this operation; the legacy name is retained; num4: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public static string converSecon2hours(int totalSeconds)
-    {
-        int num = totalSeconds % 60;
-        int num2 = totalSeconds / 60;
-        int num3 = num2 % 60;
-        int num4 = num2 / 60;
-        return num4 + ":" + num3;
-    }
 }

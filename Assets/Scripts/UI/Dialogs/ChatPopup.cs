@@ -37,35 +37,6 @@ public class ChatPopup : Effect2, IActionListener
         currentMultilineChatPopup.cmdNextLine = new Command(mResources.NEXT, currentMultilineChatPopup, 8000, null);
     }
 
-    /// <summary>Add chat popup out side.</summary>
-    /// <param name="chat">Chat.</param>
-    /// <param name="howLong">How long.</param>
-    /// <param name="c">Client character being inspected or controlled.</param>
-    public static ChatPopup addChatPopupOutSide(string chat, int howLong, Char c)
-    {
-        ChatPopup chatPopup = new ChatPopup();
-        if (chat.Length < 10)
-        {
-            chatPopup.sayWidth = 64;
-        }
-
-        if (GameCanvas.w == 128)
-        {
-            chatPopup.sayWidth = 128;
-        }
-
-        chatPopup.says = mFont.tahoma_7_red.splitFontArray(chat, chatPopup.sayWidth - 10);
-        chatPopup.delay = howLong;
-        chatPopup.c = c;
-        chatPopup.cx = c.cx;
-        chatPopup.cy = c.cy;
-        c.chatPopup = chatPopup;
-        chatPopup.sayRun = 7;
-        chatPopup.outSide = true;
-        Effect2.vEffect2Outside.addElement(chatPopup);
-        return chatPopup;
-    }
-
     /// <summary>Add chat popup.</summary>
     /// <param name="chat">Chat.</param>
     /// <param name="howLong">How long.</param>
@@ -190,15 +161,6 @@ public class ChatPopup : Effect2, IActionListener
             mScreen.keyTouch = -1;
             cmdNextLine.performAction();
         }
-    }
-
-    /// <summary>Draw command in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    public void paintCmd(mGraphics g)
-    {
-        g.translate(-g.getTranslateX(), -g.getTranslateY());
-        g.setClip(0, 0, GameCanvas.w, GameCanvas.h);
-        GameCanvas.paintz.paintCmdBar(g, null, cmdNextLine, null);
     }
 
     /// <summary>Dispatch the selected menu/action identifier to its existing handler.</summary>

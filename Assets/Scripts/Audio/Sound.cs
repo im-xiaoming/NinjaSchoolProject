@@ -243,16 +243,6 @@ public class Sound
         }
     }
 
-    /// <summary>Stop music.</summary>
-    /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
-    public static void stopMusic(int x)
-    {
-        if (!bMuzikDisable)
-        {
-            stop(x);
-        }
-    }
-
     /// <summary>Perform play.</summary>
     /// <param name="id">Identifier.</param>
     /// <param name="volume">Volume.</param>
@@ -264,53 +254,12 @@ public class Sound
         }
     }
 
-    /// <summary>Perform play sound run.</summary>
-    /// <param name="id">Identifier.</param>
-    /// <param name="volume">Volume.</param>
-    public static void playSoundRun(int id, float volume)
-    {
-        if (!bMuzikDisable && !(SoundRun == null))
-        {
-            SoundRun.GetComponent<AudioSource>().GetComponent<AudioSource>().clip = mysound[id];
-            runBase = volume;
-            SoundRun.GetComponent<AudioSource>().GetComponent<AudioSource>().volume = volume * sfxVolume;
-            SoundRun.GetComponent<AudioSource>().GetComponent<AudioSource>().Play();
-        }
-    }
-
     /// <summary>Perform s top sound run.</summary>
     public static void sTopSoundRun()
     {
         if (SoundRun == null)
             return; // not created yet, or already destroyed on quit
         SoundRun.GetComponent<AudioSource>().GetComponent<AudioSource>().Stop();
-    }
-
-    /// <summary>Check whether playing sound applies to the supplied state.</summary>
-    public static bool isPlayingSound()
-    {
-        if (SoundRun == null)
-        {
-            return false;
-        }
-
-        return SoundRun.GetComponent<AudioSource>().GetComponent<AudioSource>().isPlaying;
-    }
-
-    /// <summary>Perform play sound natural.</summary>
-    /// <param name="id">Identifier.</param>
-    /// <param name="volume">Volume.</param>
-    /// <param name="isLoop">Is loop.</param>
-    public static void playSoundNatural(int id, float volume, bool isLoop)
-    {
-        if (!bMuzikDisable && !(SoundBGLoop == null))
-        {
-            SoundWater.GetComponent<AudioSource>().GetComponent<AudioSource>().loop = isLoop;
-            SoundWater.GetComponent<AudioSource>().GetComponent<AudioSource>().clip = mysound[id];
-            waterBase = volume;
-            SoundWater.GetComponent<AudioSource>().GetComponent<AudioSource>().volume = volume * ambientVolume;
-            SoundWater.GetComponent<AudioSource>().GetComponent<AudioSource>().Play();
-        }
     }
 
     /// <summary>Stop sound natural.</summary>
@@ -320,18 +269,6 @@ public class Sound
         if (SoundWater == null)
             return;
         SoundWater.GetComponent<AudioSource>().GetComponent<AudioSource>().Stop();
-    }
-
-    /// <summary>Check whether playing soundatural applies to the supplied state.</summary>
-    /// <param name="id">Retained for call compatibility; not read by this implementation.</param>
-    public static bool isPlayingSoundatural(int id)
-    {
-        if (SoundWater == null)
-        {
-            return false;
-        }
-
-        return SoundWater.GetComponent<AudioSource>().GetComponent<AudioSource>().isPlaying;
     }
 
     /// <summary>Perform play sound bg loop.</summary>

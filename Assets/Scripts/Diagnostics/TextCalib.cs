@@ -255,54 +255,7 @@ public class TextCalib : MonoBehaviour
         go.AddComponent<TextCalib>();
     }
 
-    /// <summary>Return the horizontal center of the rectangle.</summary>
-    /// <param name="r">Rectangle used by this layout/drawing calculation.</param>
-    private static float Cx(Rect r)
-    {
-        return r.x + r.width / 2f;
-    }
-
-    /// <summary>Return the vertical center of the rectangle.</summary>
-    /// <param name="r">Rectangle used by this layout/drawing calculation.</param>
-    private static float Cy(Rect r)
-    {
-        return r.y + r.height / 2f;
-    }
-
     // Enter: move the selected item so its centre lines up with the nearest other item (x), Shift+Enter: (y)
-    /// <summary>Perform align to neighbour.</summary>
-    /// <param name="key">Key.</param>
-    /// <param name="vertical">Vertical.</param>
-    /// <remarks>Locals: me: Rectangle used by this layout/drawing calculation; d: Distance or intermediate difference; v: Value being inspected or transformed; kv: Key/value entry.</remarks>
-    private static void AlignToNeighbour(string key, bool vertical)
-    {
-        Rect me;
-        if (!rects.TryGetValue(key, out me))
-            return;
-        float best = float.MaxValue, delta = 0f;
-        foreach (KeyValuePair<string, Rect> kv in rects)
-        {
-            if (kv.Key == key)
-                continue;
-            float d = vertical ? Cy(kv.Value) - Cy(me) : Cx(kv.Value) - Cx(me);
-            if (Mathf.Abs(d) < best)
-            {
-                best = Mathf.Abs(d);
-                delta = d;
-            }
-        }
-
-        if (best == float.MaxValue)
-            return;
-        Vector2 v = Get(key);
-        float logical = delta / mGraphics.zoomLevel;
-        if (vertical)
-            v.y = Mathf.Round((v.y + logical) * 100f) / 100f;
-        else
-            v.x = Mathf.Round((v.x + logical) * 100f) / 100f;
-        Set(key, v);
-    }
-
     /// <summary>Perform line.</summary>
     /// <param name="x">Horizontal coordinate in the caller&#x27;s coordinate space.</param>
     /// <param name="y">Vertical coordinate in the caller&#x27;s coordinate space.</param>
@@ -315,120 +268,9 @@ public class TextCalib : MonoBehaviour
         GUI.DrawTexture(new Rect(x, y, w, h), Texture2D.whiteTexture);
     }
 
-    /// <summary>Perform outline.</summary>
-    /// <param name="r">Rectangle used by this layout/drawing calculation.</param>
-    /// <param name="c">Current character/entry.</param>
-    private static void Outline(Rect r, Color c)
-    {
-        Line(r.x, r.y, r.width, 1f, c);
-        Line(r.x, r.yMax, r.width, 1f, c);
-        Line(r.x, r.y, 1f, r.height, c);
-        Line(r.xMax, r.y, 1f, r.height, c);
-    }
-
     // Boxes around every tuned text, and guide lines at the left / centre / right (x) and top / centre / bottom (y) of the
     // other items. A guide is cyan while the selected item is within 30 px of it and turns green (thicker, and both boxes
     // turn green) when it lines up with the selected item to within one pixel.
-    /// <summary>Draw guides.</summary>
-    /// <remarks>Locals: sx: Horizontal position/difference used by this calculation; sy: Vertical position/difference used by this calculation; o: Rectangle used by this layout/drawing calculation; ox: Horizontal position/difference used by this calculation; oy: Vertical position/difference used by this calculation; i: Loop/collection index; j: Nested loop/collection index; dx: Entry selected from the source collection; dy: Entry selected from the source collection; c: Current character/entry; kv: Key/value entry.</remarks>
-    private void DrawGuides()
-    {
-        Rect sel;
-        bool haveSel = rects.TryGetValue(Items[selected], out sel) && Live(Items[selected]);
-        Color cyan = new Color(0.3f, 0.9f, 1f, 0.8f), green = new Color(0.2f, 1f, 0.3f, 1f), white = new Color(1f, 1f, 1f, 0.6f);
-        bool selAligned = false;
-        List<string> alignedKeys = new List<string>();
-        if (haveSel)
-        {
-            float[] sx =
-            {
-                sel.x,
-                Cx(sel),
-                sel.xMax
-            }, sy =
-            {
-                sel.y,
-                Cy(sel),
-                sel.yMax
-            };
-            foreach (KeyValuePair<string, Rect> kv in rects)
-            {
-                if (kv.Key == Items[selected] || !Live(kv.Key))
-                    continue;
-                Rect o = kv.Value;
-                float[] ox =
-                {
-                    o.x,
-                    Cx(o),
-                    o.xMax
-                }, oy =
-                {
-                    o.y,
-                    Cy(o),
-                    o.yMax
-                };
-                bool any = false;
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 3; j++)
-                    {
-                        float dx = Mathf.Abs(ox[i] - sx[j]), dy = Mathf.Abs(oy[i] - sy[j]);
-                        if (dx < 1f)
-                        {
-                            Line(ox[i] - 1f, 0f, 2f, Screen.height, green);
-                            any = true;
-                        }
-                        else if (dx < 30f && i == j)
-                            Line(ox[i], 0f, 1f, Screen.height, cyan);
-                        if (dy < 1f)
-                        {
-                            Line(0f, oy[i] - 1f, Screen.width, 2f, green);
-                            any = true;
-                        }
-                        else if (dy < 30f && i == j)
-                            Line(0f, oy[i], Screen.width, 1f, cyan);
-                    }
-                }
-
-                if (any)
-                {
-                    selAligned = true;
-                    alignedKeys.Add(kv.Key);
-                }
-            }
-        }
-
-        foreach (KeyValuePair<string, Rect> kv in rects)
-        {
-            if (!Live(kv.Key))
-                continue;
-            bool isSel = kv.Key == Items[selected];
-            Color c = isSel ? (selAligned ? green : Color.yellow) : (alignedKeys.Contains(kv.Key) ? green : white);
-            Outline(kv.Value, c);
-        }
-
-        GUI.color = Color.white;
-    }
-
-    /// <summary>Copy text.</summary>
-    /// <remarks>Locals: sb: Text output builder; xs: Xs; ys: Ys; i: Loop/collection index; v: Entry selected from the source collection.</remarks>
-    public static string CopyText()
-    {
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        string xs = "", ys = "";
-        for (int i = 0; i < Items.Length; i++)
-        {
-            Vector2 v = Get(Items[i]);
-            xs += (i > 0 ? ", " : "") + v.x.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "f";
-            ys += (i > 0 ? ", " : "") + v.y.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "f";
-        }
-
-        sb.Append("// items: ").Append(string.Join(", ", Items)).Append("\n");
-        sb.Append("private static readonly float[] defaultX = { ").Append(xs).Append(" };\n");
-        sb.Append("private static readonly float[] defaultY = { ").Append(ys).Append(" };\n");
-        return sb.ToString();
-    }
-
     /// <summary>Reset item.</summary>
     /// <param name="key">Key.</param>
     public static void ResetItem(string key)

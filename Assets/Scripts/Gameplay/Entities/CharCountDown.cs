@@ -48,18 +48,4 @@ public class CharCountDown
         }
     }
 
-    /// <summary>Compute conver secon2minutes.</summary>
-    /// <param name="time">Time.</param>
-    /// <remarks>Locals: num: Numeric intermediate used by this operation; the legacy name is retained; num2: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
-    public static string converSecon2minutes(int time)
-    {
-        int num = time % 60;
-        int num2 = time / 60 % 60;
-        if (num2 <= 0)
-        {
-            return num + string.Empty;
-        }
-
-        return num2 + ":" + num;
-    }
 }

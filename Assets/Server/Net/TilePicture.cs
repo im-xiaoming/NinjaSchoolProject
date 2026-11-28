@@ -16,7 +16,7 @@ namespace NsoServer.Net
     // so those files are read here. Runs on the server thread: PNG decoding is done by hand (no Unity API).
     public static class TilePicture
     {
-        /// <summary>Folder that holds x1..x4 (set by ServerBootstrap to Assets/Resources/res in the Editor).</summary>
+        /// <summary>Folder that holds x1..x4 (set by ServerBootstrap to Assets/Sprites/Resources/res in the Editor).</summary>
         public static string TileRoot;
         private static readonly Dictionary<string, Rgba> cache = new Dictionary<string, Rgba>();
         private sealed class Rgba

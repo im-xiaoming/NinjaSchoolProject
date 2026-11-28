@@ -2518,23 +2518,6 @@ public class Mob : MainObject
         return num;
     }
 
-    /// <summary>Compute monster contain.</summary>
-    /// <param name="templateId">Static template identifier, not an item-instance identifier.</param>
-    /// <remarks>Locals: i: Loop/collection index; mob: Monster being inspected or targeted.</remarks>
-    public static bool MobContain(int templateId)
-    {
-        for (int i = 0; i < GameScr.vMob.size(); i++)
-        {
-            Mob mob = (Mob)GameScr.vMob.elementAt(i);
-            if (mob != null && mob.templateId == templateId)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /// <summary>Update old monster.</summary>
     /// <param name="line">Retained for call compatibility; not read by this implementation.</param>
     public void update_oldMob(int line)
@@ -3799,99 +3782,6 @@ public class Mob : MainObject
         }
 
         return null;
-    }
-
-    /// <summary>Compute attbyid skill.</summary>
-    public static int AttbyidSkill()
-    {
-        if (interestChar != null)
-        {
-            return interestChar.myskill.template.id;
-        }
-
-        return 0;
-    }
-
-    /// <summary>Load imagez.</summary>
-    /// <param name="path">Path.</param>
-    /// <param name="templateid">Templateid.</param>
-    /// <remarks>Locals: i: Loop/collection index.</remarks>
-    public static void loadImagez(string path, int templateid)
-    {
-        arrMobTemplate[templateid].imgs = new Image[5];
-        for (int i = 0; i < arrMobTemplate[templateid].imgs.Length; i++)
-        {
-            arrMobTemplate[templateid].imgs[i] = GameCanvas.loadImage(path + (i + 1));
-        }
-    }
-
-    /// <summary>Check whether bossz applies to the supplied state.</summary>
-    public bool isBossz()
-    {
-        return isBoss;
-    }
-
-    /// <summary>Update attmob fly.</summary>
-    /// <param name="charFocus">Client character being inspected or controlled.</param>
-    /// <param name="templateid">Templateid.</param>
-    /// <remarks>Locals: num: Horizontal position/difference used by this calculation; num2: Vertical position/difference used by this calculation.</remarks>
-    public void updateAttmobFly(Char charFocus, int templateid)
-    {
-        if ((arrMobTemplate[templateid].type == 4 || arrMobTemplate[templateid].type == 5) && status == 3)
-        {
-            isNotRangeMove = true;
-            int num = x - charFocus.cx;
-            int num2 = y - charFocus.cy;
-            if (num > 50 || num < -50)
-            {
-                x += num;
-            }
-
-            if (num2 > 50 || num2 < -50)
-            {
-                y += num2;
-            }
-
-            if (x > xFirst + arrMobTemplate[templateid].rangeMove || x > xFirst - arrMobTemplate[templateid].rangeMove)
-            {
-                x = xFirst;
-                y = yFirst;
-            }
-
-            update();
-        }
-    }
-
-    /// <summary>Update attmob stand.</summary>
-    /// <param name="charFocus">Client character being inspected or controlled.</param>
-    /// <param name="templateid">Templateid.</param>
-    /// <remarks>Locals: num: Horizontal position/difference used by this calculation.</remarks>
-    public void updateAttmobStand(Char charFocus, int templateid)
-    {
-        if ((arrMobTemplate[templateid].type == 3 || arrMobTemplate[templateid].type == 1) && y == cFocus.cy)
-        {
-            isNotRangeMove = true;
-            int num = x - charFocus.cx;
-            if (num > 50 || num < -50)
-            {
-                x += num;
-            }
-
-            if (x > xFirst + arrMobTemplate[templateid].rangeMove || x > xFirst - arrMobTemplate[templateid].rangeMove)
-            {
-                x = xFirst;
-                y = yFirst;
-            }
-
-            update();
-        }
-    }
-
-    /// <summary>Load image monster.</summary>
-    /// <param name="i">Loop/collection index.</param>
-    public Image loadImageMob(int i)
-    {
-        return GameCanvas.loadImage("/" + templateId + "/" + (i + 1) + ".png");
     }
 
     /// <summary>Update attk thunuoi.</summary>

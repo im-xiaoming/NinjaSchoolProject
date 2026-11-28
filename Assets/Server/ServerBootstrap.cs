@@ -29,7 +29,8 @@ public static class ServerBootstrap
         UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
 #endif
         // tiles for server-made map pictures (treasure maps); the Editor reads the client's Resources files
-        NsoServer.Net.TilePicture.TileRoot = System.IO.Path.Combine(Application.dataPath, "Resources", "res");
+        // (ảnh .png đã chuyển sang Assets/Sprites/Resources/res, xem Assets/Editor/NsoMoveSpritesToFolder.cs)
+        NsoServer.Net.TilePicture.TileRoot = System.IO.Path.Combine(Application.dataPath, "Sprites", "Resources", "res");
         try
         {
             server = new GameServer(new ServerConfig { DataDirectory = NsoServerControl.DataFolder, UseSqlite = NsoServerControl.UseSqlite });

@@ -80,13 +80,6 @@ public partial class Service
         }
     }
 
-    /// <summary>Retain the select zone compatibility hook without performing work.</summary>
-    /// <param name="sub">Retained for call compatibility; not read by this implementation.</param>
-    /// <param name="value">Retained for call compatibility; not read by this implementation.</param>
-    public void selectZone(sbyte sub, int value)
-    {
-    }
-
     /// <summary>Open user interface zone.</summary>
     public void openUIZone()
     {

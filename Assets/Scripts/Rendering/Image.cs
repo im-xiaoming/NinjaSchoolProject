@@ -21,12 +21,6 @@ public class Image
     // h: Height or vertical span.
     public int h;
     public static int status;
-    /// <summary>Create empty image.</summary>
-    public static Image createEmptyImage()
-    {
-        return __createEmptyImage();
-    }
-
     /// <summary>Create image.</summary>
     /// <param name="filename">Filename.</param>
     public static Image createImage(string filename)
@@ -92,27 +86,6 @@ public class Image
         }
 
         return (byte)(var + 256);
-    }
-
-    /// <summary>Convert arr signed byte to arr byte.</summary>
-    /// <param name="var">Compatibility argument retained under its original legacy name.</param>
-    /// <remarks>Locals: array: Number of entries in the source collection; i: Loop/collection index.</remarks>
-    public static byte[] convertArrSbyteToArrByte(sbyte[] var)
-    {
-        byte[] array = new byte[var.Length];
-        for (int i = 0; i < var.Length; i++)
-        {
-            if (var[i] > 0)
-            {
-                array[i] = (byte)var[i];
-            }
-            else
-            {
-                array[i] = (byte)(var[i] + 256);
-            }
-        }
-
-        return array;
     }
 
     /// <summary>Create red/green/blue channels image.</summary>
@@ -183,37 +156,6 @@ public class Image
             imgTemp = __createImage(wtemp, htemp);
             status = 0;
         }
-    }
-
-    /// <summary>Create empty image.</summary>
-    /// <remarks>Locals: i: Loop/collection index.</remarks>
-    private static Image _createEmptyImage()
-    {
-        if (status != 0)
-        {
-            Debug.LogError("CANNOT CREATE EMPTY IMAGE WHEN CREATING OTHER IMAGE");
-            return null;
-        }
-
-        imgTemp = null;
-        status = 2;
-        int i;
-        for (i = 0; i < 500; i++)
-        {
-            Thread.Sleep(5);
-            if (status == 0)
-            {
-                break;
-            }
-        }
-
-        if (i == 500)
-        {
-            Debug.LogError("TOO LONG FOR CREATE EMPTY IMAGE");
-            status = 0;
-        }
-
-        return imgTemp;
     }
 
     /// <summary>Create image.</summary>

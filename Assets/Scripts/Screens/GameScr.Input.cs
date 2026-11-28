@@ -704,37 +704,6 @@ public partial class GameScr
         GameCanvas.debug("F23", 0);
     }
 
-    /// <summary>Reset key not release.</summary>
-    /// <remarks>Locals: flag: Branch/result flag for the current operation.</remarks>
-    public void resetKeyNotRelease()
-    {
-        if (GameCanvas.timePutKeyPc > 0)
-        {
-            GameCanvas.timePutKeyPc--;
-        }
-
-        if (GameCanvas.timePutKeyPc <= 0)
-        {
-            GameCanvas.timePutKeyPc = 0;
-            if (Main.isPC && (Char.getMyChar().statusMe == 2 || Char.getMyChar().statusMe == 3 || Char.getMyChar().statusMe == 4))
-            {
-                bool[] keyHold = GameCanvas.keyHold;
-                int nUM = Key.NUM2;
-                bool[] keyHold2 = GameCanvas.keyHold;
-                int nUM2 = Key.NUM4;
-                bool[] keyHold3 = GameCanvas.keyHold;
-                int nUM3 = Key.NUM6;
-                bool[] keyHold4 = GameCanvas.keyHold;
-                bool flag;
-                GameCanvas.keyHold[23] = (flag = (GameCanvas.keyHold[24] = false));
-                keyHold4[22] = (flag = flag);
-                keyHold3[nUM3] = (flag = flag);
-                keyHold2[nUM2] = (flag = flag);
-                keyHold[nUM] = flag;
-            }
-        }
-    }
-
     /// <summary>Update key touch control.</summary>
     /// <remarks>Locals: flag: Branch/result flag for the current operation; num: Numeric intermediate used by this operation; the legacy name is retained.</remarks>
     private void updateKeyTouchControl()

@@ -4,27 +4,6 @@ using UnityEngine;
 
 public partial class Service
 {
-    /// <summary>Send the request skill request through the existing client protocol.</summary>
-    /// <param name="skillId">Skill identifier.</param>
-    public void requestSkill(int skillId)
-    {
-        Message message = null;
-        try
-        {
-            message = messageNotMap(-110);
-            message.writer().writeShort(skillId);
-            session.sendMessage(message);
-        }
-        catch (Exception ex)
-        {
-            Out.println(ex.Message + ex.StackTrace);
-        }
-        finally
-        {
-            message.cleanup();
-        }
-    }
-
     /// <summary>Send the up skill request through the existing client protocol.</summary>
     /// <param name="skillTemplateId">Skill template identifier.</param>
     /// <param name="point">Point.</param>

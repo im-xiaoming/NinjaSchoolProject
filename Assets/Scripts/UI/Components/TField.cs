@@ -272,45 +272,6 @@ public class TField : IActionListener
         isTfield = true;
     }
 
-    /// <summary>Set normal.</summary>
-    /// <param name="ch">Client character being inspected or controlled.</param>
-    public static bool setNormal(char ch)
-    {
-        if ((ch < '0' || ch > '9') && (ch < 'A' || ch > 'Z') && (ch < 'a' || ch > 'z'))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>Set vendor type mode.</summary>
-    /// <param name="mode">Mode.</param>
-    public static void setVendorTypeMode(int mode)
-    {
-        if (mode == MOTO)
-        {
-            print[0] = "0";
-            print[10] = " *";
-            print[11] = "#";
-            changeModeKey = 35;
-        }
-        else if (mode == NOKIA)
-        {
-            print[0] = " 0";
-            print[10] = "*";
-            print[11] = "#";
-            changeModeKey = 35;
-        }
-        else if (mode == ORTHER)
-        {
-            print[0] = "0";
-            print[10] = "*";
-            print[11] = " #";
-            changeModeKey = 42;
-        }
-    }
-
     /// <summary>Initialize t field.</summary>
     public void init()
     {
@@ -479,19 +440,6 @@ public class TField : IActionListener
         {
             kb.text = this.text;
         }
-    }
-
-    /// <summary>Set mode.</summary>
-    public static void setMode()
-    {
-        mode++;
-        if (mode > 3)
-        {
-            mode = 0;
-        }
-
-        lastKey = changeModeKey;
-        timeChangeMode = Environment.TickCount / 1000;
     }
 
     /// <summary>Set dau.</summary>
@@ -713,73 +661,40 @@ public class TField : IActionListener
         }
     }
 
-    /// <summary>Draw hat set clip in the current graphics context.</summary>
-    /// <param name="g">Legacy drawing context.</param>
-    /// <remarks>Locals: flag: Branch/result flag for the current operation; flag2: Branch/result flag for the current operation.</remarks>
-    public void paint_NonSetClip(mGraphics g)
-    {
-        bool flag = isFocused();
-        if (inputType == INPUT_TYPE_PASSWORD)
-        {
-            paintedText = passwordText;
-        }
-        else
-        {
-            paintedText = text;
-        }
-
-        if (paintedText.Equals(string.Empty))
-        {
-            paintedText = title_Null;
-        }
-
-        GameCanvas.paintz.paintInputTf_new(g, flag, x, y, width, height, TEXT_GAP_X + offsetX + x + 1, y + (height - mFont.tahoma_8b.getHeight()) / 2 + 4, paintedText);
-        g.setColor(0);
-        if (flag)
-        {
-            if (keyInActiveState == 0 && (showCaretCounter > 0 || counter / CARET_SHOWING_TIME % 4 == 0))
-            {
-                g.setColor(11184810);
-                g.fillRect(TEXT_GAP_X + offsetX + x + 1 + mFont.tahoma_8b.getWidth(paintedText.Substring(0, caretPos) + "a") - CARET_WIDTH - mFont.tahoma_8b.getWidth("a"), y + (height - CARET_HEIGHT) / 2 + 6, CARET_WIDTH, CARET_HEIGHT);
-            }
-
-            if (text != null && text.Length > 0 && !Main.isPC)
-            {
-                g.drawImage(GameCanvas.imgClear, x + width - 8, y + height / 2 + 1, mGraphics.VCENTER | mGraphics.HCENTER);
-            }
-        }
-    }
-
     /// <summary>Check whether focused applies to the supplied state.</summary>
     private bool isFocused()
     {
         return isFocus;
     }
 
-    /// <summary>Compute sub string.</summary>
-    /// <param name="str">Text.</param>
-    /// <param name="index">Index.</param>
-    /// <param name="indexTo">Index to.</param>
-    /// <remarks>Locals: text: Text fragment assembled or read by this operation; i: Loop/collection index.</remarks>
-    public string subString(string str, int index, int indexTo)
+    // ---- read by the Canvas UI (UITextField), which draws the field instead of paint ----
+    /// <summary>The text the field shows: stars for a password, the placeholder (title_Null) when empty.</summary>
+    public string DisplayText
     {
-        if (index >= 0 && indexTo > str.Length - 1)
+        get
         {
-            return str.Substring(index);
+            string s = inputType == INPUT_TYPE_PASSWORD ? passwordText : text;
+            return string.IsNullOrEmpty(s) ? title_Null : s;
         }
+    }
 
-        if (index < 0 || index > str.Length - 1 || indexTo < 0 || indexTo > str.Length - 1)
-        {
-            return string.Empty;
-        }
+    /// <summary>Number of shown characters before the caret.</summary>
+    public int CaretIndex { get { return caretPos; } }
+    /// <summary>Horizontal scroll of the text inside the field (0 or negative), in game pixels.</summary>
+    public int TextOffsetX { get { return offsetX; } }
+    /// <summary>Left margin of the text inside the field.</summary>
+    public static int TextGapX { get { return TEXT_GAP_X; } }
+    public static int CaretHeight { get { return CARET_HEIGHT; } }
+    /// <summary>The blinking caret is in its visible phase (same rule as paint).</summary>
+    public bool CaretVisible
+    {
+        get { return isFocus && keyInActiveState == 0 && (showCaretCounter > 0 || counter / CARET_SHOWING_TIME % 4 == 0); }
+    }
 
-        string text = string.Empty;
-        for (int i = index; i < indexTo; i++)
-        {
-            text += str[i];
-        }
-
-        return text;
+    /// <summary>The small clear icon at the right end (touch devices only).</summary>
+    public bool ShowClearIcon
+    {
+        get { return isFocus && text != null && text.Length > 0 && !Main.isPC; }
     }
 
     /// <summary>Set password test.</summary>
@@ -1009,16 +924,6 @@ public class TField : IActionListener
             caretPos = text.Length;
             setOffset();
         }
-    }
-
-    /// <summary>Perform insert text.</summary>
-    /// <param name="text">Text fragment assembled or read by this operation.</param>
-    public void insertText(string text)
-    {
-        this.text = this.text.Substring(0, caretPos) + text + this.text.Substring(caretPos);
-        setPasswordTest();
-        caretPos += text.Length;
-        setOffset();
     }
 
     /// <summary>Return max text lenght.</summary>

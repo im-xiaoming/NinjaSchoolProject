@@ -158,10 +158,4 @@ public class MobAttack
     {
     }
 
-    /// <summary>Return type.</summary>
-    /// <param name="mobID">Retained for call compatibility; not read by this implementation.</param>
-    public static int getType(int mobID)
-    {
-        return 0;
-    }
 }

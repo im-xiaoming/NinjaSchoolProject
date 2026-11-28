@@ -3590,26 +3590,6 @@ public partial class Controller : IMessageHandler
         return null;
     }
 
-    /// <summary>Compute array signed byte 2 int.</summary>
-    /// <param name="b">Buffer or intermediate output value.</param>
-    /// <remarks>Locals: array: Number of entries in the source collection; i: Loop/collection index; num: Entry selected from the source collection.</remarks>
-    public int[] arraysbyte2Int(sbyte[] b)
-    {
-        int[] array = new int[b.Length];
-        for (int i = 0; i < b.Length; i++)
-        {
-            int num = b[i];
-            if (num < 0)
-            {
-                num += 256;
-            }
-
-            array[i] = num;
-        }
-
-        return array;
-    }
-
     public static int map;
     /// <summary>Perform message not login.</summary>
     /// <param name="msg">Framed protocol message.</param>
@@ -5559,80 +5539,6 @@ public partial class Controller : IMessageHandler
             GameScr.gI().left = (GameScr.gI().center = null);
             GameScr.gI().updateKeyBuyItemUI();
             GameCanvas.endDlg();
-        }
-        catch (Exception)
-        {
-        }
-    }
-
-    /// <summary>Load tailed beast.</summary>
-    /// <param name="msg">Framed protocol message.</param>
-    /// <remarks>Locals: b: Field decoded from the incoming binary payload; i: Loop/collection index; num: Field decoded from the incoming binary payload; num2: Field decoded from the incoming binary payload; j: Nested loop/collection index; b2: Field decoded from the incoming binary payload; b3: B3; o: Object being inspected or converted; b4: Field decoded from the incoming binary payload; b5: Field decoded from the incoming binary payload.</remarks>
-    public void LoadBijuu(Message msg)
-    {
-        try
-        {
-            sbyte b = msg.reader().readByte();
-            if (b == 0)
-            {
-                Char myChar = Char.getMyChar();
-                if (myChar == null)
-                {
-                    return;
-                }
-
-                myChar.arrItemBijuu = new Item[5];
-                for (int i = 0; i < myChar.arrItemBijuu.Length; i++)
-                {
-                    short num = msg.reader().readShort();
-                    if (num != -1)
-                    {
-                        myChar.arrItemBijuu[i] = new Item();
-                        myChar.arrItemBijuu[i].typeUI = 41;
-                        myChar.arrItemBijuu[i].indexUI = i;
-                        myChar.arrItemBijuu[i].template = ItemTemplates.get(num);
-                        myChar.arrItemBijuu[i].upgrade = msg.reader().readByte();
-                        myChar.arrItemBijuu[i].expires = msg.reader().readLong();
-                        myChar.arrItemBijuu[i].sys = msg.reader().readByte();
-                        myChar.arrItemBijuu[i].isLock = true;
-                        int num2 = msg.reader().readByte();
-                        myChar.arrItemBijuu[i].options = new MyVector();
-                        for (int j = 0; j < num2; j++)
-                        {
-                            myChar.arrItemBijuu[i].options.addElement(new ItemOption(msg.reader().readUnsignedByte(), msg.reader().readInt()));
-                        }
-                    }
-                }
-
-                myChar.bijuuPoint = msg.reader().readShort();
-                myChar.bijuupotential[0] = msg.reader().readShort();
-                myChar.bijuupotential[1] = msg.reader().readShort();
-                myChar.bijuupotential[2] = msg.reader().readShort();
-                myChar.bijuupotential[3] = msg.reader().readShort();
-                myChar.bijuuSkillPoint = msg.reader().readShort();
-                myChar.vSkillBijuu.removeAllElements();
-                sbyte b2 = msg.reader().readByte();
-                for (byte b3 = 0; b3 < b2; b3 = (byte)(b3 + 1))
-                {
-                    short skillId = msg.reader().readShort();
-                    Skill o = Skills.get(skillId);
-                    myChar.vSkillBijuu.addElement(o);
-                }
-            }
-            else if (b == 1)
-            {
-                sbyte b4 = msg.reader().readByte();
-                if (b4 != 0 && b4 != 1)
-                {
-                }
-            }
-            else if (b == 2)
-            {
-                sbyte b5 = msg.reader().readByte();
-                if (b5 != 0 && b5 != 1)
-                {
-                }
-            }
         }
         catch (Exception)
         {

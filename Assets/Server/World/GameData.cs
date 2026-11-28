@@ -105,15 +105,6 @@ namespace NsoServer.World
         // `effect` table: effect template id -> effect type (0 food, 1 burn, 2 freeze, 3 stun, 4/17 HP over time...)
         private readonly Dictionary<int, int> effectTypes = new Dictionary<int, int>();
         private readonly Dictionary<int, string> effectNames = new Dictionary<int, string>();
-        /// <summary>Display name of an effect template (`effect.name`), "#id" when unknown (debug views only).</summary>
-        /// <param name="templateId">Static template identifier, not an item-instance identifier.</param>
-        /// <remarks>Locals: n: Number of entries or iterations.</remarks>
-        public string EffectName(int templateId)
-        {
-            string n;
-            return effectNames.TryGetValue(templateId, out n) ? n : "#" + templateId;
-        }
-
         /// <summary>Compute effect type.</summary>
         /// <param name="templateId">Static template identifier, not an item-instance identifier.</param>
         /// <remarks>Locals: t: Current entry or time sample.</remarks>
@@ -161,17 +152,6 @@ namespace NsoServer.World
         }
 
         // StoreManager.find(type): the items of one shop in display order
-        /// <summary>Compute item store sample.</summary>
-        /// <param name="itemId">Item identifier.</param>
-        public StoreItem ItemStoreSample(int itemId)
-        {
-            foreach (var store in stores.Values)
-                foreach (var item in store)
-                    if (item.ItemId == itemId)
-                        return item;
-            return null;
-        }
-
         /// <summary>Compute store.</summary>
         /// <param name="type">Type.</param>
         /// <remarks>Locals: s: Source text or serialized input.</remarks>

@@ -3,18 +3,6 @@ using System;
 public class NinjaUtil
 {
     public static MyRandom randomz = new MyRandom();
-    /// <summary>Handle load map complete.</summary>
-    public static void onLoadMapComplete()
-    {
-        GameCanvas.endDlg();
-    }
-
-    /// <summary>Handle loading.</summary>
-    public void onLoading()
-    {
-        GameCanvas.startWaitDlg("Đang tải dữ liệu");
-    }
-
     /// <summary>Return moneys.</summary>
     /// <param name="m">Current message or map entry.</param>
     /// <remarks>Locals: text: Text fragment assembled or read by this operation; num: Numeric intermediate used by this operation; the legacy name is retained; i: Loop/collection index; num2: Numeric intermediate used by this operation; the legacy name is retained.</remarks>

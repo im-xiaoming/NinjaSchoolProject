@@ -263,14 +263,4 @@ public class Main : MonoBehaviour
         return true;
     }
 
-    /// <summary>Check can send sms.</summary>
-    public static bool checkCanSendSMS()
-    {
-        if (iPhoneSettings.generation == iPhoneGeneration.iPhone3GS || iPhoneSettings.generation == iPhoneGeneration.iPhone4 || iPhoneSettings.generation > iPhoneGeneration.iPodTouch4Gen)
-        {
-            return true;
-        }
-
-        return false;
-    }
 }

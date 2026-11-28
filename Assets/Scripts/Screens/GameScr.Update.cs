@@ -99,36 +99,6 @@ public partial class GameScr
         scrInfo.updatecm();
     }
 
-    /// <summary>Update open.</summary>
-    public void updateOpen()
-    {
-        if (isstarOpen)
-        {
-            if (moveUp > -3)
-            {
-                moveUp -= 4;
-            }
-            else
-            {
-                moveUp = -2;
-            }
-
-            if (moveDow < GameCanvas.h + 3)
-            {
-                moveDow += 4;
-            }
-            else
-            {
-                moveDow = GameCanvas.h + 2;
-            }
-
-            if (moveUp <= -2 && moveDow >= GameCanvas.h + 2)
-            {
-                isstarOpen = false;
-            }
-        }
-    }
-
     /// <summary>Advance this object&#x27;s state for the current client logic tick.</summary>
     /// <remarks>Locals: i: Loop/collection index.</remarks>
     public override void update()

@@ -196,29 +196,6 @@ public partial class Char
         return fr + fWeaponUI * 30;
     }
 
-    /// <summary>Return frame mat na user interface.</summary>
-    /// <param name="fr">Fr.</param>
-    public int getFrameMatNaUI(int fr)
-    {
-        return fr + fMatNaUI * 30;
-    }
-
-    /// <summary>Check whether old horse applies to the supplied state.</summary>
-    public bool isoldHorse()
-    {
-        if (arrItemMounts[4] == null)
-        {
-            return false;
-        }
-
-        if (arrItemMounts[4].template.id == 485 || arrItemMounts[4].template.id == 524 || arrItemMounts[4].template.id == 523 || arrItemMounts[4].template.id == 443)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     /// <summary>Return vertical offset horse.</summary>
     public int getDyHorse()
     {

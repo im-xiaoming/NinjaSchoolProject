@@ -302,18 +302,6 @@ public static class Interp
             residual[o] = visual - new Vector2(x, y);
     }
 
-    /// <summary>Perform blend all.</summary>
-    /// <param name="v">Value being inspected or transformed.</param>
-    /// <param name="t">Current entry or time sample.</param>
-    /// <remarks>Locals: i: Loop/collection index.</remarks>
-    private static void BlendAll(MyVector v, float t)
-    {
-        if (v == null)
-            return;
-        for (int i = 0; i < v.size(); i++)
-            Blend(v.elementAt(i), t);
-    }
-
     // Called right before painting; t is how far we are into the current tick (0..1).
     /// <summary>Begin paint.</summary>
     /// <param name="t">Current entry or time sample.</param>

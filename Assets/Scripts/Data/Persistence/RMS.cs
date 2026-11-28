@@ -10,21 +10,6 @@ public class RMS
     public static string filename;
     private const int INTERVAL = 5;
     private const int MAXTIME = 500;
-    /// <summary>Save rms bool.</summary>
-    /// <param name="NameSave">Name save.</param>
-    /// <param name="Value">Value.</param>
-    public static void SaveRMSBool(string NameSave, bool Value)
-    {
-        saveRMSInt(NameSave, Handle.ToInt32(Value));
-    }
-
-    /// <summary>Load rms bool.</summary>
-    /// <param name="NameSave">Name save.</param>
-    public static bool loadRMSBool(string NameSave)
-    {
-        return Handle.ToBoolean(loadRMSInt(NameSave));
-    }
-
     /// <summary>Save rms image.</summary>
     /// <param name="idImage">Retained for call compatibility; not read by this implementation.</param>
     /// <param name="data">Data.</param>
@@ -65,32 +50,6 @@ public class RMS
         }
 
         return _loadRMS(filename);
-    }
-
-    /// <summary>Load rms string.</summary>
-    /// <param name="fileName">File name.</param>
-    /// <remarks>Locals: array: Working array for this operation.</remarks>
-    public static string loadRMSString(string fileName)
-    {
-        sbyte[] array = loadRMS(fileName);
-        if (array == null)
-        {
-            return null;
-        }
-
-        DataInputStream dataInputStream = new DataInputStream(array);
-        try
-        {
-            string result = dataInputStream.readUTF();
-            dataInputStream.close();
-            return result;
-        }
-        catch (Exception ex)
-        {
-            Out.println(ex.StackTrace);
-        }
-
-        return null;
     }
 
     /// <summary>Copy signed protocol bytes into an unsigned byte array without changing their bit patterns.</summary>
@@ -267,13 +226,6 @@ public class RMS
         }
 
         return ArrayCast.cast(array);
-    }
-
-    /// <summary>Delete all.</summary>
-    public static void deleteAll()
-    {
-        Debug.LogWarning("ALL RMS CLEAR");
-        PlayerPrefs.DeleteAll();
     }
 
     /// <summary>Compute byte array to string.</summary>

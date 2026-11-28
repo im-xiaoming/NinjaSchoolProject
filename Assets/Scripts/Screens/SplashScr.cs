@@ -2,7 +2,6 @@ public class SplashScr : mScreen
 {
     public static int splashScrStat;
     public static SplashScr instance;
-    public Image imgTitle = GameCanvas.loadImage("/tt");
     /// <summary>Initialize splash screen state and its supplied dependencies.</summary>
     public SplashScr()
     {
@@ -45,13 +44,8 @@ public class SplashScr : mScreen
 
     /// <summary>Draw this object&#x27;s current state through the legacy graphics wrapper.</summary>
     /// <param name="g">Legacy drawing context.</param>
+    /// <remarks>The splash (black screen and title image) is the Canvas view SplashView.</remarks>
     public override void paint(mGraphics g)
     {
-        g.setColor(0);
-        g.fillRect(0, 0, GameCanvas.w, GameCanvas.h);
-        if (Main.isPC && imgTitle != null)
-        {
-            g.drawImage(imgTitle, GameCanvas.hw, GameCanvas.h / 2, 3);
-        }
     }
 }

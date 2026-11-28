@@ -4,15 +4,6 @@ using System.Collections;
 
 public partial class Char
 {
-    /// <summary>Update characters ound.</summary>
-    private void updateCharSound()
-    {
-        if (me && getMyChar().statusMe == 2 && !Sound.isPlayingSound())
-        {
-            Sound.playSoundRun(Sound.MBuocChan, 0.8f);
-        }
-    }
-
     /// <summary>Update framechar byhorse.</summary>
     public void updateFramecharByhorse()
     {
